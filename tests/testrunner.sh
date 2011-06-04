@@ -54,6 +54,12 @@ function sourceheader() {
 		SOURCEFILES="$SOURCEFILES $SOURCEFILE"
 		echo "	case \"/$testpath\": $ns.main (); break;" >> main.vala
 		echo "namespace $ns {" > $SOURCEFILE
+	elif [ "$1" = "Negative:" ]; then
+		testpath=${testfile/.test/}/$2
+		ns=${testpath//\//.}
+		ns=${ns//-/_}
+		SOURCEFILE=$ns.vala
+		NEGATIVETEST=1
 	elif [ $GIRTEST -eq 1 ]; then
 		if [ "$1" = "Input:" ]; then
 			testpath=${testfile/.test/}
@@ -91,11 +97,29 @@ function sourceend() {
 				echo "</repository>" >> $SOURCEFILE
 			fi
 			echo "$VAPIGEN $VAPIGENFLAGS --library $ns $ns.gir && tail -n +5 $ns.vapi|head -n -1|sed '/^$/d'|sed 's/^\s*//'|cmp --quiet $ns.vapi.ref" > check
+		elif [ $NEGATIVETEST -eq 1 ]; then
+			echo "! $VALAC --vapidir $vapidir --fatal-warnings $([ -z "$PACKAGES" ] || echo $PACKAGES | xargs -n 1 echo -n " --pkg") -C $SOURCEFILE" > check
+			addtocheck
 		else
 			echo "}" >> $SOURCEFILE
 			echo "./test$EXEEXT /$testpath" > check
 		fi
 	fi
+}
+
+function addtocheck() {
+	cat prepare check > $ns.check
+	cat << EOF >> checkall
+echo -n -e "  /$testpath: \033[72G"
+((all++))
+if bash $ns.check &>log; then
+	echo -e "\033[0;32mOK\033[m"
+else
+	((fail++))
+	echo -e "\033[0;31mFAIL\033[m"
+	cat log
+fi
+EOF
 }
 
 testdir=_test
@@ -140,6 +164,7 @@ for testfile in "$@"; do
 		PART=0
 		INHEADER=1
 		GIRTEST=0
+		NEGATIVETEST=0
 		testpath=
 		while IFS="" read -r line; do
 			if [ $PART -eq 0 ]; then
@@ -160,6 +185,7 @@ for testfile in "$@"; do
 						sourceend
 						PART=$(($PART + 1))
 						INHEADER=1
+						NEGATIVETEST=0
 						testpath=
 						sourceheader $line
 					else
@@ -177,19 +203,7 @@ for testfile in "$@"; do
 		sourceend
 		;;
 	esac
-
-	cat prepare check > $ns.check
-	cat << EOF >> checkall
-echo -n -e "  /$testpath: \033[72G"
-((all++))
-if bash $ns.check &>log; then
-	echo -e "\033[0;32mOK\033[m"
-else
-	((fail++))
-	echo -e "\033[0;31mFAIL\033[m"
-	cat log
-fi
-EOF
+	addtocheck
 done
 
 cat << "EOF" >> checkall

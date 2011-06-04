@@ -1,3 +1,12 @@
+
+Negative: negative
+
+async void foo () { bar.callback (); }
+
+async void bar () { foo.callback (); }
+
+Program: positive
+
 class Foo : Object {
 	public virtual async void method1 () { }
 }
