@@ -2166,6 +2166,8 @@ namespace GLib {
 	public static void assert_null (void* expr);
 	[Assert]
 	public static void assert_nonnull (void* expr);
+	[Assert]
+	public static void assert_no_error (Error e);
 	[NoReturn]
 	public static void assert_not_reached ();
 
