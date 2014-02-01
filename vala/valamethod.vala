@@ -636,7 +636,7 @@ public class Vala.Method : Subroutine {
 		if (checked) {
 			return !error;
 		}
-
+		
 		checked = true;
 
 		if (get_attribute ("DestroysInstance") != null) {
