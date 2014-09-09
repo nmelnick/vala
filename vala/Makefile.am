@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.common
+
 NULL =
 
 AM_CPPFLAGS = \
@@ -177,14 +179,23 @@ valainclude_HEADERS = \
 	$(NULL)
 
 vala.vapi vala.vala.stamp: $(libvalacore_la_VALASOURCES)
-	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 --pkg gmodule-2.0 --vapidir $(srcdir)/../gee --pkg gee --pkg config -H vala.h --library vala $^
+	$(VALA_V)$(VALAC) \
+		$(COVERAGE_VALAFLAGS) \
+		$(VALAFLAGS) \
+		-C \
+		--vapidir $(top_srcdir)/vapi --pkg gobject-2.0 --pkg gmodule-2.0 \
+		--vapidir $(top_srcdir)/gee --pkg gee \
+		--pkg config \
+		-H vala.h \
+		--library vala \
+		$^
 	@touch $@
 
 libvalacore_la_LIBADD = \
 	$(COVERAGE_LIBS) \
 	$(GLIB_LIBS) \
 	$(GMODULE_LIBS) \
-	../gee/libgee.la \
+	$(top_builddir)/gee/libgee.la \
 	$(NULL)
 
 EXTRA_DIST = $(libvalacore_la_VALASOURCES) vala.vapi vala.vala.stamp
@@ -194,7 +205,3 @@ MAINTAINERCLEANFILES = \
 	vala.h \
 	$(libvalacore_la_VALASOURCES:.vala=.c) \
 	$(NULL)
-
-VALA_V = $(VALA_V_$(V))
-VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
-VALA_V_0 = @echo "  VALAC " $^;

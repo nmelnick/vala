@@ -2,7 +2,7 @@ NULL =
 
 vapidir = $(pkgdatadir)/vapi
 
-libvala@PACKAGE_SUFFIX@.vapi: ../gee/gee.vapi ../ccode/ccode.vapi ../vala/vala.vapi ../codegen/codegen.vapi
+libvala@PACKAGE_SUFFIX@.vapi: $(top_srcdir)/gee/gee.vapi $(top_srcdir)/ccode/ccode.vapi $(top_srcdir)/vala/vala.vapi $(top_srcdir)/codegen/codegen.vapi
 	cat $^ > $@
 
 dist_vapi_DATA = \
@@ -288,10 +288,10 @@ dist_vapi_DATA = \
 	vte-2.90.vapi \
 	webkit-1.0.deps \
 	webkit-1.0.vapi \
-	webkit2gtk-3.0.vapi \
-	webkit2gtk-3.0.deps \
-	webkit2gtk-web-extension-3.0.vapi \
-	webkit2gtk-web-extension-3.0.deps \
+	webkit2gtk-4.0.vapi \
+	webkit2gtk-4.0.deps \
+	webkit2gtk-web-extension-4.0.vapi \
+	webkit2gtk-web-extension-4.0.deps \
 	x11.vapi \
 	xcb.vapi \
 	xcb-icccm.vapi \
@@ -408,7 +408,6 @@ GIR_BINDINGS = \
 	libnotify \
 	libpeas-1.0 \
 	libpeas-gtk-1.0 \
-	librsvg-2.0 \
 	libsoup-2.4 \
 	libwnck-3.0 \
 	mx-1.0 \
@@ -419,8 +418,8 @@ GIR_BINDINGS = \
 	rest-0.7 \
 	udisks2 \
 	vte-2.90 \
-	webkit2gtk-3.0 \
-	webkit2gtk-web-extension-3.0 \
+	webkit2gtk-4.0 \
+	webkit2gtk-web-extension-4.0 \
 	$(GSTREAMER_1_0_BINDINGS) \
 	$(NULL)
 
@@ -774,9 +773,8 @@ vte-2.90:
 webkit-1.0:
 	$(GENVAPI) --library $(srcdir)/webkit-1.0 $(PACKAGESDIR)/webkit-1.0/webkit-1.0.gi
 
-webkit2gtk-3.0:
-	$(GENVAPI) --library $(srcdir)/webkit2gtk-3.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 --pkg libsoup-2.4 $(GIRDIR)/WebKit2-3.0.gir
+webkit2gtk-4.0:
+	$(GENVAPI) --library $(srcdir)/webkit2gtk-4.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 --pkg libsoup-2.4 $(GIRDIR)/WebKit2-4.0.gir
 
-webkit2gtk-web-extension-3.0:
-	$(GENVAPI) --library $(srcdir)/webkit2gtk-web-extension-3.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 $(GIRDIR)/WebKit2WebExtension-3.0.gir
-
+webkit2gtk-web-extension-4.0:
+	$(GENVAPI) --library $(srcdir)/webkit2gtk-web-extension-4.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 $(GIRDIR)/WebKit2WebExtension-4.0.gir

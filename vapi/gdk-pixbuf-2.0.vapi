@@ -16,6 +16,8 @@ namespace Gdk {
 		public void fill (uint32 pixel);
 		public Gdk.Pixbuf? flip (bool horizontal);
 		[CCode (has_construct_function = false)]
+		public Pixbuf.from_bytes (GLib.Bytes data, Gdk.Colorspace colorspace, bool has_alpha, int bits_per_sample, int width, int height, int rowstride);
+		[CCode (has_construct_function = false)]
 		public Pixbuf.from_data ([CCode (array_length = false)] owned uint8[] data, Gdk.Colorspace colorspace, bool has_alpha, int bits_per_sample, int width, int height, int rowstride, [CCode (type = "GdkPixbufDestroyNotify")] Gdk.PixbufDestroyNotify? destroy_fn = GLib.free);
 		[CCode (has_construct_function = false)]
 		public Pixbuf.from_file (string filename) throws GLib.Error;
@@ -45,6 +47,7 @@ namespace Gdk {
 		public size_t get_byte_length ();
 		public Gdk.Colorspace get_colorspace ();
 		public static unowned Gdk.PixbufFormat? get_file_info (string filename, out int width, out int height);
+		public static async unowned Gdk.PixbufFormat get_file_info_async (string filename, GLib.Cancellable? cancellable, out int width, out int height) throws GLib.Error;
 		public static GLib.SList<weak Gdk.PixbufFormat> get_formats ();
 		public bool get_has_alpha ();
 		public int get_height ();
@@ -62,6 +65,8 @@ namespace Gdk {
 		[CCode (cname = "gdk_pixbuf_new_from_stream_at_scale_async", finish_name = "gdk_pixbuf_new_from_stream_finish")]
 		[Deprecated (replacement = "Pixbuf.from_stream_at_scale_async", since = "vala-0.18")]
 		public static async Gdk.Pixbuf new_from_stream_at_scale_async (GLib.InputStream stream, int width, int height, bool preserve_aspect_ratio, GLib.Cancellable? cancellable = null) throws GLib.Error;
+		public GLib.Bytes read_pixel_bytes ();
+		public uint8 read_pixels ();
 		public Gdk.Pixbuf? rotate_simple (Gdk.PixbufRotation angle);
 		public void saturate_and_pixelate (Gdk.Pixbuf dest, float saturation, bool pixelate);
 		public bool save (string filename, string type, ...) throws GLib.Error;
@@ -84,6 +89,8 @@ namespace Gdk {
 		public bool has_alpha { get; construct; }
 		public int height { get; construct; }
 		public int n_channels { get; construct; }
+		[NoAccessorMethod]
+		public GLib.Bytes pixel_bytes { owned get; construct; }
 		public void* pixels { get; construct; }
 		public int rowstride { get; construct; }
 		public int width { get; construct; }

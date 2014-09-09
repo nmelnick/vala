@@ -30,11 +30,12 @@ namespace Gtk {
 		public Gtk.AccelKey* find (Gtk.AccelGroupFindFunc find_func);
 	}
 
-	public struct Allocation {
-		public int x;
-		public int y;
-		public int width;
-		public int height;
+	public struct Allocation : Gdk.Rectangle {
+	}
+
+	[Compact]
+	public class BindingSet {
+		public static unowned BindingSet @new (string name);
 	}
 
 	[CCode (cheader_filename = "gtk/gtk.h")]
@@ -251,12 +252,12 @@ namespace Gtk {
 		public void set_has_frame (bool setting);
 	}
 
-	public interface Editable {
+	public interface Editable : GLib.Object {
 		[CCode (vfunc_name = "set_selection_bounds")]
 		public abstract void select_region (int start_pos, int end_pos);
 	}
 
-	public interface FileChooserEmbed {
+	public interface FileChooserEmbed : GLib.Object {
 	}
 
 	public interface FileChooser: Gtk.Widget {
@@ -281,15 +282,11 @@ namespace Gtk {
 	[CCode (has_target = false)]
 	public delegate void CallbackMarshal (Object object, void* data, Arg[] args);
 
+	[CCode (type_cname = "GCallback")]
 	public delegate void ActionCallback (Action action);
 
-	public delegate void MenuPositionFunc (Gtk.Menu menu, out int x, out int y, out bool push_in);
-
+	[CCode (type_cname = "GCallback")]
 	public delegate void RadioActionCallback (Action action, Action current);
-
-	public delegate bool TreeViewSearchEqualFunc (TreeModel model, int column, string key, TreeIter iter);
-
-	public delegate string CalendarDetailFunc (Gtk.Calendar calendar, uint year, uint month, uint day);
 
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public static unowned string set_locale ();
@@ -511,4 +508,6 @@ namespace Gtk {
 	public static void stock_add_static (Gtk.StockItem[] items);
 	[Deprecated (since = "vala-0.12", replacement = "Gtk.Stock.list_ids")]
 	public static GLib.SList<string> stock_list_ids ();
+	[Deprecated (since = "vala-0.26", replacement = "Gtk.Stock.set_translate_func")]
+	public static void stock_set_translate_func (string domain, owned Gtk.TranslateFunc func);
 }

@@ -1775,7 +1775,7 @@ namespace GLib {
 	}
 
 #if GLIB_2_32
-	[CCode (destroy_function = "g_mutex_clear")]
+	[CCode (destroy_function = "g_mutex_clear", lvalue_access = false)]
 	public struct Mutex {
 #else
 	[Compact]
@@ -1858,7 +1858,7 @@ namespace GLib {
 	}
 
 #if GLIB_2_32
-	[CCode (destroy_function = "g_cond_clear")]
+	[CCode (destroy_function = "g_cond_clear", lvalue_access = false)]
 	public struct Cond {
 #else
 	[Compact]
@@ -2330,7 +2330,7 @@ namespace GLib {
 	public class Hmac {
 		public Hmac (ChecksumType digest_type, [CCode (array_length_type = "gsize")] uint8[] key);
 		public Hmac copy ();
-		public void update ([CCode (array_length_type = "gssize")] uint8[] data, size_t length);
+		public void update ([CCode (array_length_type = "gssize")] uint8[] data);
 		public unowned string get_string ();
 		public void get_digest ([CCode (array_length = false)] uint8[] buffer, ref size_t digest_len);
 		[CCode (cname = "g_compute_hmac_for_data")]
@@ -2694,7 +2694,7 @@ namespace GLib {
 		[CCode (cname = "g_get_environ", array_length = false, array_null_terminated = true)]
 		public static string[] get ();
 		[CCode (cname = "g_environ_getenv")]
-		public static string? get_variable ([CCode (array_length = false, array_null_terminated = true)] string[]? envp, string variable);
+		public static unowned string? get_variable ([CCode (array_length = false, array_null_terminated = true)] string[]? envp, string variable);
 		[CCode (cname = "g_environ_setenv", array_length = false, array_null_terminated = true)]
 		public static string[] set_variable ([CCode (array_length = false, array_null_terminated = true)] owned string[]? envp, string variable, string value, bool overwrite = true);
 		[CCode (cname = "g_environ_unsetenv", array_length = false, array_null_terminated = true)]
@@ -3248,11 +3248,7 @@ namespace GLib {
 	}
 
 	[Compact]
-#if GLIB_2_22
 	[CCode (ref_function = "g_mapped_file_ref", unref_function = "g_mapped_file_unref")]
-#else
-	[CCode (free_function = "g_mapped_file_free")]
-#endif
 	public class MappedFile {
 		public MappedFile (string filename, bool writable) throws FileError;
 		public size_t get_length ();
@@ -4200,7 +4196,7 @@ namespace GLib {
 			return ht;
 		}
 		public uint length {
-			[CCode (cname = "g_hash_table_get_size")]
+			[CCode (cname = "g_hash_table_size")]
 			get;
 		}
 	}
@@ -4229,7 +4225,7 @@ namespace GLib {
 			((GLib.HashTable<unowned T,T>) this).foreach ((k, v) => func (v));
 		}
 		public uint length {
-			[CCode (cname = "g_hash_table_get_size")]
+			[CCode (cname = "g_hash_table_size")]
 			get;
 		}
 	}
@@ -4344,11 +4340,7 @@ namespace GLib {
 	/* Pointer Arrays */
 
 	[Compact, Deprecated (since = "vala-0.26", replacement="GenericArray")]
-#if GLIB_2_22
 	[CCode (ref_function = "g_ptr_array_ref", unref_function = "g_ptr_array_unref", type_id = "G_TYPE_PTR_ARRAY")]
-#else
-	[CCode (free_function = "g_ptr_array_free")]
-#endif
 	public class PtrArray {
 		public PtrArray ();
 		public PtrArray.with_free_func (GLib.DestroyNotify? element_free_func);
@@ -4467,11 +4459,7 @@ namespace GLib {
 	/* Byte Arrays */
 
 	[Compact]
-#if GLIB_2_22
 	[CCode (cprefix = "g_byte_array_", ref_function = "g_byte_array_ref", unref_function = "g_byte_array_unref", type_id = "G_TYPE_BYTE_ARRAY")]
-#else
-	[CCode (cprefix = "g_byte_array_", free_function = "g_byte_array_free")]
-#endif
 	public class ByteArray {
 		public ByteArray ();
 		[CCode (cname = "g_byte_array_sized_new")]
@@ -4598,11 +4586,7 @@ namespace GLib {
 	/* GArray */
 
 	[Compact]
-#if GLIB_2_22
 	[CCode (ref_function = "g_array_ref", unref_function = "g_array_unref", type_id = "G_TYPE_ARRAY")]
-#else
-	[CCode (free_function = "g_array_free")]
-#endif
 	public class Array<G> {
 		[CCode (cname = "len")]
 		public uint length;
@@ -4643,11 +4627,7 @@ namespace GLib {
 	public delegate int TreeSearchFunc<K> (K key);
 
 	[Compact]
-#if GLIB_2_22
 	[CCode (ref_function = "g_tree_ref", unref_function = "g_tree_unref")]
-#else
-	[CCode (free_function = "g_tree_destroy")]
-#endif
 	public class Tree<K,V> {
 		[CCode (cname = "g_tree_new_full", simple_generics = true)]
 		public Tree (CompareDataFunc<K> key_compare_func);
@@ -5045,7 +5025,7 @@ namespace GLib {
 
 	[Compact, CCode (ref_function = "g_variant_dict_ref", unref_function = "g_variant_dict_unref")]
 	public class VariantDict {
-		public VariantDict (GLib.Variant from_asv);
+		public VariantDict (GLib.Variant? from_asv = null);
 		public bool lookup (string key, string format_string, ...);
 		public GLib.Variant lookup_value (string key, GLib.VariantType expected_type);
 		public bool contains (string key);
@@ -5053,6 +5033,7 @@ namespace GLib {
 		public void insert_value (string key, GLib.Variant value);
 		public bool remove (string key);
 		public void clear ();
+		[CCode (returns_floating_reference = true)]
 		public GLib.Variant end ();
 	}
 

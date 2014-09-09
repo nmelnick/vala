@@ -62,6 +62,7 @@ public class Vala.GDBusClientModule : GDBusModule {
 
 		CCodeExpression proxy_type;
 		CCodeExpression dbus_iface_name;
+		CCodeExpression dbus_iface_info;
 
 		var object_type = type_arg as ObjectType;
 		if (object_type != null) {
@@ -98,6 +99,15 @@ public class Vala.GDBusClientModule : GDBusModule {
 
 			dbus_iface_name = get_qdata;
 		}
+
+		var quark = new CCodeFunctionCall (new CCodeIdentifier ("g_quark_from_static_string"));
+		quark.add_argument (new CCodeConstant ("\"vala-dbus-interface-info\""));
+
+		var get_qdata = new CCodeFunctionCall (new CCodeIdentifier ("g_type_get_qdata"));
+		get_qdata.add_argument (get_type_id_expression (type_arg));
+		get_qdata.add_argument (quark);
+
+		dbus_iface_info = get_qdata;
 
 		if (bus_get_proxy_async || conn_get_proxy_async) {
 			if (ma.member_name == "end" && ma.inner.symbol_reference == ma.symbol_reference) {
@@ -195,6 +205,10 @@ public class Vala.GDBusClientModule : GDBusModule {
 		ccall.add_argument (get_cvalue (object_path));
 		ccall.add_argument (new CCodeConstant ("\"g-interface-name\""));
 		ccall.add_argument (dbus_iface_name);
+		if (dbus_iface_info != null) {
+			ccall.add_argument (new CCodeConstant ("\"g-interface-info\""));
+			ccall.add_argument (dbus_iface_info);
+		}
 		ccall.add_argument (new CCodeConstant ("NULL"));
 
 		if (bus_get_proxy_async || conn_get_proxy_async) {
@@ -256,6 +270,16 @@ public class Vala.GDBusClientModule : GDBusModule {
 		set_qdata.add_argument (new CCodeIdentifier ("%s_type_id".printf (get_ccode_lower_case_name (sym, null))));
 		set_qdata.add_argument (quark);
 		set_qdata.add_argument (new CCodeConstant ("\"%s\"".printf (dbus_iface_name)));
+
+		block.add_statement (new CCodeExpressionStatement (set_qdata));
+
+		quark = new CCodeFunctionCall (new CCodeIdentifier ("g_quark_from_static_string"));
+		quark.add_argument (new CCodeConstant ("\"vala-dbus-interface-info\""));
+
+		set_qdata = new CCodeFunctionCall (new CCodeIdentifier ("g_type_set_qdata"));
+		set_qdata.add_argument (new CCodeIdentifier ("%s_type_id".printf (get_ccode_lower_case_name (sym, null))));
+		set_qdata.add_argument (quark);
+		set_qdata.add_argument (new CCodeCastExpression (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, get_interface_info (sym)), "void*"));
 
 		block.add_statement (new CCodeExpressionStatement (set_qdata));
 	}

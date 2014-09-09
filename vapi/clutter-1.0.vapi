@@ -5866,7 +5866,7 @@ namespace Clutter {
 		public void set_state (Clutter.ModifierType state);
 		public void set_time (uint32 time_);
 	}
-	[CCode (cheader_filename = "clutter/clutter.h")]
+	[CCode (cheader_filename = "clutter/clutter.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "clutter_event_sequence_get_type ()")]
 	[Compact]
 	public class EventSequence {
 	}
@@ -6676,6 +6676,7 @@ namespace Clutter {
 		public bool use_fog { get; set; }
 		public bool user_resizable { get; set; }
 		public virtual signal void activate ();
+		public signal void after_paint ();
 		public virtual signal void deactivate ();
 		public virtual signal bool delete_event (Clutter.Event event);
 		public virtual signal void fullscreen ();

@@ -2654,7 +2654,7 @@ public class Vala.Parser : CodeVisitor {
 
 	void parse_field_declaration (Symbol parent, List<Attribute>? attrs) throws ParseError {
 		var begin = get_location ();
-		var access = parse_access_modifier ();
+		var access = parse_access_modifier ((parent is Struct) ? SymbolAccessibility.PUBLIC : SymbolAccessibility.PRIVATE);
 		var flags = parse_member_declaration_modifiers ();
 		var type = parse_type (true, true);
 		string id = parse_identifier ();
@@ -2662,12 +2662,18 @@ public class Vala.Parser : CodeVisitor {
 
 		var f = new Field (id, type, null, get_src (begin), comment);
 		f.access = access;
+
 		set_attributes (f, attrs);
 		if (ModifierFlags.STATIC in flags) {
 			f.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			f.binding = MemberBinding.CLASS;
 		}
+
+		if (parent is Struct && f.access != SymbolAccessibility.PUBLIC && f.binding == MemberBinding.INSTANCE) {
+			Report.warning (f.source_reference, "accessibility of struct fields can only be `public`");
+		}
+
 		if (ModifierFlags.ABSTRACT in flags
 		    || ModifierFlags.VIRTUAL in flags
 		    || ModifierFlags.OVERRIDE in flags) {

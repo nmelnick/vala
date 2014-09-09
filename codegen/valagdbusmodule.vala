@@ -34,6 +34,34 @@ public class Vala.GDBusModule : GVariantModule {
 		return Symbol.lower_case_to_camel_case (symbol.name);
 	}
 
+	public static bool is_dbus_visible (CodeNode node) {
+		var dbus_attribute = node.get_attribute ("DBus");
+		if (dbus_attribute != null
+		    && dbus_attribute.has_argument ("visible")
+		    && !dbus_attribute.get_bool ("visible")) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public static bool is_dbus_no_reply (Method m) {
+		return m.get_attribute_bool ("DBus", "no_reply");
+	}
+
+	public static string dbus_result_name (Method m) {
+		var dbus_name = m.get_attribute_string ("DBus", "result");
+		if (dbus_name != null && dbus_name != "") {
+			return dbus_name;
+		}
+
+		return "result";
+	}
+
+	protected CCodeExpression get_interface_info (ObjectTypeSymbol sym) {
+		return new CCodeIdentifier ("_" + get_ccode_lower_case_prefix (sym) + "dbus_interface_info");
+	}
+
 	public override void visit_error_domain (ErrorDomain edomain) {
 		var edomain_dbus_name = get_dbus_name (edomain);
 		if (edomain_dbus_name == null) {
@@ -80,7 +108,7 @@ public class Vala.GDBusModule : GVariantModule {
 		ccode.add_declaration ("gsize", new CCodeVariableDeclarator (quark_name, new CCodeConstant ("0")), CCodeModifiers.STATIC | CCodeModifiers.VOLATILE);
 
 		var register_call = new CCodeFunctionCall (new CCodeIdentifier ("g_dbus_error_register_error_domain"));
-		register_call.add_argument (new CCodeConstant ("\"" + get_ccode_lower_case_name (edomain) + "-quark\""));
+		register_call.add_argument (new CCodeConstant ("\"" + CCodeBaseModule.get_quark_name (edomain) + "\""));
 		register_call.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, new CCodeIdentifier (quark_name)));
 		register_call.add_argument (new CCodeIdentifier (get_ccode_lower_case_name (edomain) + "_entries"));
 		var nentries = new CCodeFunctionCall (new CCodeIdentifier ("G_N_ELEMENTS"));
