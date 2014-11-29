@@ -183,7 +183,7 @@ vala.vapi vala.vala.stamp: $(libvalacore_la_VALASOURCES)
 		$(COVERAGE_VALAFLAGS) \
 		$(VALAFLAGS) \
 		-C \
-		--vapidir $(top_srcdir)/vapi --pkg gobject-2.0 --pkg gmodule-2.0 \
+		--vapidir $(top_srcdir)/vapi --pkg gmodule-2.0 --pkg gobject-2.0 \
 		--vapidir $(top_srcdir)/gee --pkg gee \
 		--pkg config \
 		-H vala.h \

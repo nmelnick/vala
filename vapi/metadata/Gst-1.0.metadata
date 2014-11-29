@@ -37,11 +37,14 @@ init_get_option_group skip=false
 init.argv unowned
 init_check.argv unowned
 
-// Floating references (bug #657202)
+// Floating references (bug #657202 and bug #702969)
 Bin
   .new floating
+  .add.element owned=false
 BufferPool
   .new floating
+Element
+  .add_pad.pad owned=false
 ElementFactory
   .create floating
   .make floating
@@ -161,6 +164,10 @@ parse_launch_full.context default=null
 parse_launch_full.flags default=Gst.ParseFlags.NONE
 parse_launchv_full.context default=null
 parse_launchv_full.flags default=Gst.ParseFlags.NONE
+
+// Field array lengths (bug #678663)
+MapInfo
+  .data array_length_field="size"
 
 // Delegates without targets
 tag_register skip=false

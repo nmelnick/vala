@@ -28,6 +28,7 @@ TESTS = \
 	basic-types/bug596637.vala \
 	basic-types/bug596785.vala \
 	basic-types/bug632322.vala \
+	basic-types/bug644046.vala \
 	basic-types/bug647222.vala \
 	basic-types/bug648364.vala \
 	basic-types/bug650993.vala \
@@ -49,6 +50,7 @@ TESTS = \
 	methods/bug613483.vala \
 	methods/bug620673.vala \
 	methods/bug622570.vala \
+	methods/bug626783.vala \
 	methods/bug639054.vala \
 	methods/bug642885.vala \
 	methods/bug642899.vala \
@@ -62,6 +64,7 @@ TESTS = \
 	methods/bug723009.vala \
 	methods/bug723195.vala \
 	methods/bug726347.vala \
+	methods/bug736235.vala \
 	methods/generics.vala \
 	control-flow/break.vala \
 	control-flow/expressions-conditional.vala \

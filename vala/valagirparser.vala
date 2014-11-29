@@ -79,7 +79,8 @@ public class Vala.GirParser : CodeVisitor {
 		EXPERIMENTAL,
 		FLOATING,
 		TYPE_ID,
-		RETURN_VOID;
+		RETURN_VOID,
+		DELEGATE_TARGET_CNAME;
 
 		public static ArgumentType? from_string (string name) {
 			var enum_class = (EnumClass) typeof(ArgumentType).class_ref ();
@@ -716,7 +717,7 @@ public class Vala.GirParser : CodeVisitor {
 			}
 			if (prefix == null) {
 				if (symbol is Enum || symbol is ErrorDomain) {
-					prefix = "%s%s".printf (parent.get_lower_case_cprefix ().up (), name);
+					prefix = "%s%s".printf (parent.get_lower_case_cprefix ().ascii_up (), name);
 				} else {
 					prefix = get_cname ();
 				}
@@ -1028,6 +1029,10 @@ public class Vala.GirParser : CodeVisitor {
 					if (colliding.size > 1) {
 						// whatelse has precedence over the field
 						merged = true;
+					}
+
+					if (metadata.has_argument (ArgumentType.DELEGATE_TARGET_CNAME)) {
+						field.set_attribute_string ("CCode", "delegate_target_cname", metadata.get_string (ArgumentType.DELEGATE_TARGET_CNAME));
 					}
 
 					if (field.variable_type is DelegateType && parent.gtype_struct_for != null) {
@@ -2270,7 +2275,7 @@ public class Vala.GirParser : CodeVisitor {
 
 	void parse_enumeration_member () {
 		start_element ("member");
-		push_node (element_get_name().up().replace ("-", "_"), false);
+		push_node (element_get_name().ascii_up().replace ("-", "_"), false);
 
 		var ev = new EnumValue (current.name, metadata.get_expression (ArgumentType.DEFAULT), current.source_reference);
 		current.symbol = ev;
@@ -2284,7 +2289,7 @@ public class Vala.GirParser : CodeVisitor {
 
 	void parse_error_member () {
 		start_element ("member");
-		push_node (element_get_name().up().replace ("-", "_"), false);
+		push_node (element_get_name().ascii_up().replace ("-", "_"), false);
 
 		ErrorCode ec;
 		string value = reader.get_attribute ("value");

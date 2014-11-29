@@ -50,12 +50,14 @@ namespace WebKit {
 		public unowned WebKit.ContextMenuItem get_item_at_position (uint position);
 		public unowned GLib.List<WebKit.ContextMenuItem> get_items ();
 		public uint get_n_items ();
+		public unowned GLib.Variant get_user_data ();
 		public void insert (WebKit.ContextMenuItem item, int position);
 		public unowned WebKit.ContextMenuItem last ();
 		public void move_item (WebKit.ContextMenuItem item, int position);
 		public void prepend (WebKit.ContextMenuItem item);
 		public void remove (WebKit.ContextMenuItem item);
 		public void remove_all ();
+		public void set_user_data (GLib.Variant user_data);
 		[CCode (has_construct_function = false)]
 		public ContextMenu.with_items (GLib.List<WebKit.ContextMenuItem> items);
 	}
@@ -107,6 +109,7 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		protected Download ();
 		public void cancel ();
+		public bool get_allow_overwrite ();
 		public unowned string get_destination ();
 		public double get_elapsed_time ();
 		public double get_estimated_progress ();
@@ -114,7 +117,9 @@ namespace WebKit {
 		public unowned WebKit.URIRequest get_request ();
 		public unowned WebKit.URIResponse get_response ();
 		public unowned WebKit.WebView get_web_view ();
+		public void set_allow_overwrite (bool allowed);
 		public void set_destination (string uri);
+		public bool allow_overwrite { get; set; }
 		public string destination { get; }
 		public double estimated_progress { get; }
 		public WebKit.URIResponse response { get; }
@@ -196,6 +201,7 @@ namespace WebKit {
 		public bool context_is_link ();
 		public bool context_is_media ();
 		public bool context_is_scrollbar ();
+		public bool context_is_selection ();
 		public uint get_context ();
 		public unowned string get_image_uri ();
 		public unowned string get_link_label ();
@@ -495,11 +501,13 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		protected URIResponse ();
 		public uint64 get_content_length ();
+		public unowned Soup.MessageHeaders get_http_headers ();
 		public unowned string get_mime_type ();
 		public uint get_status_code ();
 		public unowned string get_suggested_filename ();
 		public unowned string get_uri ();
 		public uint64 content_length { get; }
+		public Soup.MessageHeaders http_headers { get; }
 		public string mime_type { get; }
 		public uint status_code { get; }
 		public string suggested_filename { get; }
@@ -522,8 +530,11 @@ namespace WebKit {
 		public UserContentManager ();
 		public void add_script (WebKit.UserScript script);
 		public void add_style_sheet (WebKit.UserStyleSheet stylesheet);
+		public bool register_script_message_handler (string name);
 		public void remove_all_scripts ();
 		public void remove_all_style_sheets ();
+		public void unregister_script_message_handler (string name);
+		public signal void script_message_received (WebKit.JavascriptResult js_result);
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", ref_function = "webkit_user_script_ref", type_id = "webkit_user_script_get_type ()", unref_function = "webkit_user_script_unref")]
 	[Compact]
@@ -544,7 +555,7 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_web_context_get_type ()")]
 	public class WebContext : GLib.Object {
 		[CCode (has_construct_function = false)]
-		protected WebContext ();
+		public WebContext ();
 		public void allow_tls_certificate_for_host (GLib.TlsCertificate certificate, string host);
 		public void clear_cache ();
 		public WebKit.Download download_uri (string uri);
@@ -573,8 +584,10 @@ namespace WebKit {
 		public void set_tls_errors_policy (WebKit.TLSErrorsPolicy policy);
 		public void set_web_extensions_directory (string directory);
 		public void set_web_extensions_initialization_user_data (GLib.Variant user_data);
-		public signal void download_started (WebKit.Download download);
-		public signal void initialize_web_extensions ();
+		[NoAccessorMethod]
+		public string local_storage_directory { owned get; construct; }
+		public virtual signal void download_started (WebKit.Download download);
+		public virtual signal void initialize_web_extensions ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_web_inspector_get_type ()")]
 	public class WebInspector : GLib.Object {
@@ -582,11 +595,13 @@ namespace WebKit {
 		protected WebInspector ();
 		public void close ();
 		public uint get_attached_height ();
+		public bool get_can_attach ();
 		public unowned string get_inspected_uri ();
 		public unowned WebKit.WebViewBase get_web_view ();
 		public bool is_attached ();
 		public void show ();
 		public uint attached_height { get; }
+		public bool can_attach { get; }
 		public string inspected_uri { get; }
 		[HasEmitter]
 		public signal bool attach ();
@@ -606,6 +621,7 @@ namespace WebKit {
 		public WebKit.URIResponse response { get; }
 		public string uri { get; }
 		public signal void failed (void* error);
+		public signal void failed_with_tls_errors (GLib.TlsCertificate certificate, GLib.TlsCertificateFlags errors);
 		public signal void finished ();
 		public signal void received_data (uint64 data_length);
 		public signal void sent_request (WebKit.URIRequest request, WebKit.URIResponse redirected_response);
@@ -686,7 +702,7 @@ namespace WebKit {
 		public virtual signal bool leave_fullscreen ();
 		public virtual signal void load_changed (WebKit.LoadEvent load_event);
 		public virtual signal bool load_failed (WebKit.LoadEvent load_event, string failing_uri, void* error);
-		public virtual signal bool load_failed_with_tls_errors (GLib.TlsCertificate certificate, GLib.TlsCertificateFlags errors, string host);
+		public virtual signal bool load_failed_with_tls_errors (string failing_uri, GLib.TlsCertificate certificate, GLib.TlsCertificateFlags errors);
 		public virtual signal void mouse_target_changed (WebKit.HitTestResult hit_test_result, uint modifiers);
 		public virtual signal bool permission_request (WebKit.PermissionRequest permission_request);
 		public virtual signal bool print (WebKit.PrintOperation print_operation);
@@ -830,7 +846,8 @@ namespace WebKit {
 		IMAGE,
 		MEDIA,
 		EDITABLE,
-		SCROLLBAR
+		SCROLLBAR,
+		SELECTION
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_INSECURE_CONTENT_", type_id = "webkit_insecure_content_event_get_type ()")]
 	public enum InsecureContentEvent {

@@ -21,6 +21,8 @@ dist_vapi_DATA = \
 	ccss-1.vapi \
 	clutter-1.0.deps \
 	clutter-1.0.vapi \
+	clutter-gdk-1.0.deps \
+	clutter-gdk-1.0.vapi \
 	clutter-gst-1.0.deps \
 	clutter-gst-1.0.vapi \
 	clutter-gst-2.0.deps \
@@ -30,6 +32,8 @@ dist_vapi_DATA = \
 	clutter-gtk-1.0.deps \
 	clutter-gtk-1.0.vapi \
 	clutter-json-1.0.vapi \
+	clutter-x11-1.0.deps \
+	clutter-x11-1.0.vapi \
 	cogl-1.0.vapi \
 	cogl-1.0.deps \
 	cogl-pango-1.0.vapi \
@@ -258,6 +262,8 @@ dist_vapi_DATA = \
 	rest-extras-0.6.vapi \
 	rest-0.7.deps \
 	rest-0.7.vapi \
+	rest-extras-0.7.deps \
+	rest-extras-0.7.vapi \
 	sdl.vapi \
 	sdl-gfx.vapi \
 	sdl-gfx.deps \
@@ -390,9 +396,11 @@ GIR_BINDINGS = \
 	atk \
 	atspi-2 \
 	clutter-1.0 \
+	clutter-gdk-1.0 \
 	clutter-gtk-1.0 \
 	clutter-gst-1.0 \
 	clutter-gst-2.0 \
+	clutter-x11-1.0 \
 	cogl-pango-1.0 \
 	gdk-3.0 \
 	gdk-pixbuf-2.0 \
@@ -400,7 +408,6 @@ GIR_BINDINGS = \
 	geocode-glib-1.0 \
 	gio-2.0 \
 	gobject-introspection-1.0 \
-	gtksourceview-3.0 \
 	gudev-1.0 \
 	json-glib-1.0 \
 	libgdata \
@@ -416,6 +423,7 @@ GIR_BINDINGS = \
 	pangocairo \
 	poppler-glib \
 	rest-0.7 \
+	rest-extras-0.7 \
 	udisks2 \
 	vte-2.90 \
 	webkit2gtk-4.0 \
@@ -452,6 +460,9 @@ atspi-2:
 clutter-1.0:
 	$(GENVAPI) --library $(srcdir)/clutter-1.0 --metadatadir $(METADATADIR) $(METADATADIR)/Clutter-1.0-custom.vala --pkg atk --pkg cairo --pkg pango --pkg cogl-1.0 --pkg cogl-pango-1.0 --pkg json-glib-1.0 $(GIRDIR)/Clutter-1.0.gir
 
+clutter-gdk-1.0:
+	$(GENVAPI) --library $(srcdir)/clutter-gdk-1.0 --metadatadir $(METADATADIR) --pkg clutter-1.0 --pkg gdk-3.0 $(GIRDIR)/ClutterGdk-1.0.gir
+
 clutter-gtk-0.10:
 	$(GENVAPI) --library $(srcdir)/clutter-gtk-0.10 $(PACKAGESDIR)/clutter-gtk-0.10/clutter-gtk-0.10.gi
 
@@ -463,6 +474,9 @@ clutter-gst-1.0:
 
 clutter-gst-2.0:
 	$(GENVAPI) --library $(srcdir)/clutter-gst-2.0 --metadatadir $(METADATADIR) $(METADATADIR)/ClutterGst-2.0-custom.vala --pkg cogl-1.0 --pkg clutter-1.0 --pkg gstreamer-base-1.0 --pkg gstreamer-video-1.0 $(GIRDIR)/ClutterGst-2.0.gir
+
+clutter-x11-1.0:
+	$(GENVAPI) --library $(srcdir)/clutter-x11-1.0 --metadatadir $(METADATADIR) --pkg clutter-1.0 --pkg x11 $(GIRDIR)/ClutterX11-1.0.gir
 
 cogl-1.0:
 	$(GENVAPI) --library $(srcdir)/cogl-1.0 $(PACKAGESDIR)/cogl-1.0/cogl-1.0-custom.vala $(PACKAGESDIR)/cogl-1.0/cogl-1.0.gi
@@ -752,6 +766,9 @@ rest-extras-0.6:
 rest-0.7:
 	$(GENVAPI) --library $(srcdir)/rest-0.7 --metadatadir $(METADATADIR) --pkg gio-2.0 $(GIRDIR)/Rest-0.7.gir
 
+rest-extras-0.7:
+	$(GENVAPI) --library $(srcdir)/rest-extras-0.7 --metadatadir $(METADATADIR) --pkg rest-0.7 $(GIRDIR)/RestExtras-0.7.gir
+
 tracker-indexer-module-1.0:
 	$(GENVAPI) --library $(srcdir)/tracker-indexer-module-1.0 $(PACKAGESDIR)/tracker-indexer-module-1.0/tracker-indexer-module-1.0-custom.vala $(PACKAGESDIR)/tracker-indexer-module-1.0/tracker-indexer-module-1.0.gi
 
@@ -777,4 +794,4 @@ webkit2gtk-4.0:
 	$(GENVAPI) --library $(srcdir)/webkit2gtk-4.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 --pkg libsoup-2.4 $(GIRDIR)/WebKit2-4.0.gir
 
 webkit2gtk-web-extension-4.0:
-	$(GENVAPI) --library $(srcdir)/webkit2gtk-web-extension-4.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 $(GIRDIR)/WebKit2WebExtension-4.0.gir
+	$(GENVAPI) --library $(srcdir)/webkit2gtk-web-extension-4.0 --metadatadir $(METADATADIR) --pkg gtk+-3.0 $(METADATADIR)/WebKit2WebExtension-4.0-custom.vala $(GIRDIR)/WebKit2WebExtension-4.0.gir

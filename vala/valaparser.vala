@@ -1761,7 +1761,7 @@ public class Vala.Parser : CodeVisitor {
 		return false;
 	}
 
-	Block parse_embedded_statement () throws ParseError {
+	Block parse_embedded_statement (string statement_name, bool accept_empty_body = true) throws ParseError {
 		if (current () == TokenType.OPEN_BRACE) {
 			var block = parse_block ();
 			return block;
@@ -1771,16 +1771,20 @@ public class Vala.Parser : CodeVisitor {
 
 		var block = new Block (get_src (get_location ()));
 
-		var stmt = parse_embedded_statement_without_block ();
+		var stmt = parse_embedded_statement_without_block (statement_name, accept_empty_body);
 		block.add_statement (stmt);
 
 		return block;
 
 	}
 
-	Statement parse_embedded_statement_without_block () throws ParseError {
+	Statement parse_embedded_statement_without_block (string statement_name, bool accept_empty_body) throws ParseError {
 		switch (current ()) {
-		case TokenType.SEMICOLON: return parse_empty_statement ();
+		case TokenType.SEMICOLON:
+			if (!accept_empty_body) {
+				Report.warning (get_current_src (), "%s-statement without body".printf (statement_name));
+			}
+			return parse_empty_statement ();
 		case TokenType.IF:        return parse_if_statement ();
 		case TokenType.SWITCH:    return parse_switch_statement ();
 		case TokenType.WHILE:     return parse_while_statement ();
@@ -1948,10 +1952,10 @@ public class Vala.Parser : CodeVisitor {
 		var condition = parse_expression ();
 		expect (TokenType.CLOSE_PARENS);
 		var src = get_src (begin);
-		var true_stmt = parse_embedded_statement ();
+		var true_stmt = parse_embedded_statement ("if", false);
 		Block false_stmt = null;
 		if (accept (TokenType.ELSE)) {
-			false_stmt = parse_embedded_statement ();
+			false_stmt = parse_embedded_statement ("else", false);
 		}
 		return new IfStatement (condition, true_stmt, false_stmt, src);
 	}
@@ -1989,14 +1993,14 @@ public class Vala.Parser : CodeVisitor {
 		expect (TokenType.OPEN_PARENS);
 		var condition = parse_expression ();
 		expect (TokenType.CLOSE_PARENS);
-		var body = parse_embedded_statement ();
+		var body = parse_embedded_statement ("while");
 		return new WhileStatement (condition, body, get_src (begin));
 	}
 
 	Statement parse_do_statement () throws ParseError {
 		var begin = get_location ();
 		expect (TokenType.DO);
-		var body = parse_embedded_statement ();
+		var body = parse_embedded_statement ("do");
 		expect (TokenType.WHILE);
 		expect (TokenType.OPEN_PARENS);
 		var condition = parse_expression ();
@@ -2050,7 +2054,7 @@ public class Vala.Parser : CodeVisitor {
 		}
 		expect (TokenType.CLOSE_PARENS);
 		var src = get_src (begin);
-		var body = parse_embedded_statement ();
+		var body = parse_embedded_statement ("for");
 		var stmt = new ForStatement (condition, body, src);
 		foreach (Expression init in initializer_list) {
 			stmt.add_initializer (init);
@@ -2083,7 +2087,7 @@ public class Vala.Parser : CodeVisitor {
 		var collection = parse_expression ();
 		expect (TokenType.CLOSE_PARENS);
 		var src = get_src (begin);
-		var body = parse_embedded_statement ();
+		var body = parse_embedded_statement ("foreach");
 		return new ForeachStatement (type, id, collection, body, src);
 	}
 
@@ -2184,7 +2188,7 @@ public class Vala.Parser : CodeVisitor {
 		expect (TokenType.OPEN_PARENS);
 		var expr = parse_expression ();
 		expect (TokenType.CLOSE_PARENS);
-		var stmt = parse_embedded_statement ();
+		var stmt = parse_embedded_statement ("lock", false);
 		return new LockStatement (expr, stmt, get_src (begin));
 	}
 
@@ -2664,7 +2668,9 @@ public class Vala.Parser : CodeVisitor {
 		f.access = access;
 
 		set_attributes (f, attrs);
-		if (ModifierFlags.STATIC in flags) {
+		if (ModifierFlags.STATIC in flags && ModifierFlags.CLASS in flags) {
+			Report.error (f.source_reference, "only one of `static' or `class' may be specified");
+		} else if (ModifierFlags.STATIC in flags) {
 			f.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			f.binding = MemberBinding.CLASS;
@@ -2725,7 +2731,9 @@ public class Vala.Parser : CodeVisitor {
 		foreach (TypeParameter type_param in type_param_list) {
 			method.add_type_parameter (type_param);
 		}
-		if (ModifierFlags.STATIC in flags) {
+		if (ModifierFlags.STATIC in flags && ModifierFlags.CLASS in flags) {
+			Report.error (method.source_reference, "only one of `static' or `class' may be specified");
+		} else if (ModifierFlags.STATIC in flags) {
 			method.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			method.binding = MemberBinding.CLASS;
@@ -2756,7 +2764,7 @@ public class Vala.Parser : CodeVisitor {
 			if (ModifierFlags.ABSTRACT in flags
 			    || ModifierFlags.VIRTUAL in flags
 			    || ModifierFlags.OVERRIDE in flags) {
-				throw new ParseError.SYNTAX (get_error ("the modifiers `abstract', `virtual', and `override' are not valid for static methods"));
+				throw new ParseError.SYNTAX (get_error ("the modifiers `abstract', `virtual', and `override' are not valid for %s methods".printf ((ModifierFlags.CLASS in flags) ? "class" : "static")));
 			}
 		}
 
@@ -2816,7 +2824,9 @@ public class Vala.Parser : CodeVisitor {
 		var prop = new Property (id, type, null, null, get_src (begin), comment);
 		prop.access = access;
 		set_attributes (prop, attrs);
-		if (ModifierFlags.STATIC in flags) {
+		if (ModifierFlags.STATIC in flags && ModifierFlags.CLASS in flags) {
+			Report.error (prop.source_reference, "only one of `static' or `class' may be specified");
+		} else if (ModifierFlags.STATIC in flags) {
 			prop.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			prop.binding = MemberBinding.CLASS;
@@ -2983,7 +2993,9 @@ public class Vala.Parser : CodeVisitor {
 			throw new ParseError.SYNTAX (get_error ("`new' modifier not allowed on constructor"));
 		}
 		var c = new Constructor (get_src (begin));
-		if (ModifierFlags.STATIC in flags) {
+		if (ModifierFlags.STATIC in flags && ModifierFlags.CLASS in flags) {
+			Report.error (c.source_reference, "only one of `static' or `class' may be specified");
+		} else if (ModifierFlags.STATIC in flags) {
 			c.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			c.binding = MemberBinding.CLASS;
@@ -2997,14 +3009,19 @@ public class Vala.Parser : CodeVisitor {
 		var begin = get_location ();
 		var flags = parse_member_declaration_modifiers ();
 		expect (TokenType.TILDE);
-		parse_identifier ();
+		string identifier = parse_identifier ();
 		expect (TokenType.OPEN_PARENS);
 		expect (TokenType.CLOSE_PARENS);
 		if (ModifierFlags.NEW in flags) {
 			throw new ParseError.SYNTAX (get_error ("`new' modifier not allowed on destructor"));
 		}
 		var d = new Destructor (get_src (begin));
-		if (ModifierFlags.STATIC in flags) {
+		if (identifier != parent.name) {
+			Report.error (d.source_reference, "destructor and parent symbol name do not match");
+		}
+		if (ModifierFlags.STATIC in flags && ModifierFlags.CLASS in flags) {
+			Report.error (d.source_reference, "only one of `static' or `class' may be specified");
+		} else if (ModifierFlags.STATIC in flags) {
 			d.binding = MemberBinding.STATIC;
 		} else if (ModifierFlags.CLASS in flags) {
 			d.binding = MemberBinding.CLASS;

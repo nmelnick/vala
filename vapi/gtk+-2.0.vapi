@@ -4438,12 +4438,12 @@ namespace Gtk {
 		public string get_text (Gtk.TextIter start, Gtk.TextIter end, bool include_hidden_chars);
 		public void insert (ref Gtk.TextIter iter, string text, int len);
 		public void insert_at_cursor (string text, int len);
-		public bool insert_interactive (Gtk.TextIter iter, string text, int len, bool default_editable);
+		public bool insert_interactive (ref Gtk.TextIter iter, string text, int len, bool default_editable);
 		public bool insert_interactive_at_cursor (string text, int len, bool default_editable);
-		public void insert_range (Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end);
-		public bool insert_range_interactive (Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end, bool default_editable);
-		public void insert_with_tags (Gtk.TextIter iter, string text, int len, ...);
-		public void insert_with_tags_by_name (Gtk.TextIter iter, string text, int len, ...);
+		public void insert_range (ref Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end);
+		public bool insert_range_interactive (ref Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end, bool default_editable);
+		public void insert_with_tags (ref Gtk.TextIter iter, string text, int len, ...);
+		public void insert_with_tags_by_name (ref Gtk.TextIter iter, string text, int len, ...);
 		public void move_mark (Gtk.TextMark mark, Gtk.TextIter where);
 		public void move_mark_by_name (string name, Gtk.TextIter where);
 		public void paste_clipboard (Gtk.Clipboard clipboard, Gtk.TextIter? override_location, bool default_editable);
@@ -6267,12 +6267,12 @@ namespace Gtk {
 		public abstract void rebuild_menu ();
 	}
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public interface TreeDragDest {
+	public interface TreeDragDest : GLib.Object {
 		public abstract bool drag_data_received (Gtk.TreePath dest, Gtk.SelectionData selection_data);
 		public abstract bool row_drop_possible (Gtk.TreePath dest_path, Gtk.SelectionData selection_data);
 	}
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public interface TreeDragSource {
+	public interface TreeDragSource : GLib.Object {
 		public abstract bool drag_data_delete (Gtk.TreePath path);
 		public abstract bool drag_data_get (Gtk.TreePath path, Gtk.SelectionData selection_data);
 		public abstract bool row_draggable (Gtk.TreePath path);
@@ -8260,9 +8260,9 @@ namespace Gtk {
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public static GLib.Quark print_error_quark ();
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public static unowned Gtk.PageSetup print_run_page_setup_dialog (Gtk.Window parent, Gtk.PageSetup page_setup, Gtk.PrintSettings settings);
+	public static Gtk.PageSetup print_run_page_setup_dialog (Gtk.Window parent, Gtk.PageSetup page_setup, Gtk.PrintSettings settings);
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public static void print_run_page_setup_dialog_async (Gtk.Window parent, Gtk.PageSetup page_setup, Gtk.PrintSettings settings, Gtk.PageSetupDoneFunc done_cb, void* data);
+	public static void print_run_page_setup_dialog_async (Gtk.Window parent, Gtk.PageSetup page_setup, Gtk.PrintSettings settings, Gtk.PageSetupDoneFunc done_cb);
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public static void propagate_event (Gtk.Widget widget, Gdk.Event event);
 	[CCode (cheader_filename = "gtk/gtk.h")]

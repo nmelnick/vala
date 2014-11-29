@@ -664,6 +664,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 		expr.accept_children (this);
 	}
 
+	public override void visit_named_argument (NamedArgument expr) {
+		expr.accept_children (this);
+	}
+
 	public override void visit_addressof_expression (AddressofExpression expr) {
 		if (expr.checked) {
 			return;

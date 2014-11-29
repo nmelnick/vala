@@ -135,9 +135,19 @@ public class Vala.Field : Variable, Lockable {
 				return false;
 			}
 
+			if (initializer.value_type.is_disposable ()) {
+				/* rhs transfers ownership of the expression */
+				if (!(variable_type is PointerType) && !variable_type.value_owned) {
+					/* lhs doesn't own the value */
+					error = true;
+					Report.error (source_reference, "Invalid assignment from owned expression to unowned variable");
+					return false;
+				}
+			}
+
 			if (parent_symbol is Namespace && !initializer.is_constant ()) {
 				error = true;
-				Report.error (source_reference, "Non-constant field initializerS not supported in this context");
+				Report.error (source_reference, "Non-constant field initializers not supported in this context");
 				return false;
 			}
 

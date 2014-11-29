@@ -4580,6 +4580,7 @@ namespace Gdk {
 	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_cursor_get_type ()")]
 	public class Cursor : GLib.Object {
 		[CCode (has_construct_function = false)]
+		[Deprecated (since = "3.16")]
 		public Cursor (Gdk.CursorType cursor_type);
 		[CCode (has_construct_function = false)]
 		public Cursor.for_display (Gdk.Display display, Gdk.CursorType cursor_type);
@@ -4692,6 +4693,7 @@ namespace Gdk {
 		public unowned GLib.List<Gdk.Device> list_devices ();
 		public void notify_startup_complete (string startup_id);
 		public static unowned Gdk.Display? open (string display_name);
+		[Deprecated (since = "3.16")]
 		public static unowned Gdk.Display? open_default_libgtk_only ();
 		public Gdk.Event? peek_event ();
 		[Deprecated (since = "3.0")]
@@ -4704,6 +4706,7 @@ namespace Gdk {
 		public void set_double_click_time (uint msec);
 		public void store_clipboard (Gdk.Window clipboard_window, uint32 time_, [CCode (array_length_cname = "n_targets", array_length_pos = 3.1)] Gdk.Atom[] targets);
 		public bool supports_clipboard_persistence ();
+		[Deprecated (since = "3.16")]
 		public bool supports_composite ();
 		public bool supports_cursor_alpha ();
 		public bool supports_cursor_color ();
@@ -5060,6 +5063,22 @@ namespace Gdk {
 		public Gdk.FrameTimings @ref ();
 		public void unref ();
 	}
+	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_gl_context_get_type ()")]
+	public abstract class GLContext : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected GLContext ();
+		public static void clear_current ();
+		public static unowned Gdk.GLContext get_current ();
+		public unowned Gdk.Display get_display ();
+		public Gdk.GLProfile get_profile ();
+		public unowned Gdk.Window get_window ();
+		public void make_current ();
+		public Gdk.Display display { get; construct; }
+		public Gdk.GLProfile profile { get; construct; }
+		[NoAccessorMethod]
+		public Gdk.GLContext shared_context { owned get; construct; }
+		public Gdk.Window window { get; construct; }
+	}
 	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_keymap_get_type ()")]
 	public class Keymap : GLib.Object {
 		[CCode (has_construct_function = false)]
@@ -5167,6 +5186,7 @@ namespace Gdk {
 		public static void constrain_size (Gdk.Geometry geometry, Gdk.WindowHints flags, int width, int height, out int new_width, out int new_height);
 		public void coords_from_parent (double parent_x, double parent_y, out double x, out double y);
 		public void coords_to_parent (double x, double y, out double parent_x, out double parent_y);
+		public Gdk.GLContext create_gl_context (Gdk.GLProfile profile) throws GLib.Error;
 		public Cairo.Surface create_similar_image_surface (int format, int width, int height, int scale);
 		public Cairo.Surface create_similar_surface (Cairo.Content content, int width, int height);
 		public void deiconify ();
@@ -5179,6 +5199,7 @@ namespace Gdk {
 		[Deprecated (since = "3.14")]
 		public void flush ();
 		public void focus (uint32 timestamp);
+		[Deprecated (since = "3.16")]
 		public void freeze_toplevel_updates_libgtk_only ();
 		public void freeze_updates ();
 		public void fullscreen ();
@@ -5188,6 +5209,7 @@ namespace Gdk {
 		public GLib.List<weak Gdk.Window> get_children ();
 		public GLib.List<weak Gdk.Window> get_children_with_user_data (void* user_data);
 		public Cairo.Region get_clip_region ();
+		[Deprecated (since = "3.16")]
 		public bool get_composited ();
 		public unowned Gdk.Cursor? get_cursor ();
 		public bool get_decorations (out Gdk.WMDecoration decorations);
@@ -5242,6 +5264,7 @@ namespace Gdk {
 		public bool is_viewable ();
 		public bool is_visible ();
 		public void lower ();
+		public void mark_paint_from_clip (Cairo.Context cr);
 		public void maximize ();
 		public void merge_child_input_shapes ();
 		public void merge_child_shapes ();
@@ -5265,6 +5288,7 @@ namespace Gdk {
 		public void set_background_rgba (Gdk.RGBA rgba);
 		public void set_child_input_shapes ();
 		public void set_child_shapes ();
+		[Deprecated (since = "3.16")]
 		public void set_composited (bool composited);
 		public void set_cursor (Gdk.Cursor? cursor);
 		public static void set_debug_updates (bool setting);
@@ -5292,6 +5316,7 @@ namespace Gdk {
 		public void set_skip_taskbar_hint (bool skips_taskbar);
 		public void set_source_events (Gdk.InputSource source, Gdk.EventMask event_mask);
 		public void set_startup_id (string startup_id);
+		[Deprecated (since = "3.16")]
 		public bool set_static_gravities (bool use_static);
 		public void set_support_multidevice (bool support_multidevice);
 		public void set_title (string title);
@@ -5304,6 +5329,7 @@ namespace Gdk {
 		public void show_unraised ();
 		public bool show_window_menu (Gdk.Event event);
 		public void stick ();
+		[Deprecated (since = "3.16")]
 		public void thaw_toplevel_updates_libgtk_only ();
 		public void thaw_updates ();
 		public void unfullscreen ();
@@ -5645,6 +5671,12 @@ namespace Gdk {
 		CURRENT_MONITOR,
 		ALL_MONITORS
 	}
+	[CCode (cheader_filename = "gdk/gdk.h", cprefix = "GDK_GL_PROFILE_", type_id = "gdk_gl_profile_get_type ()")]
+	public enum GLProfile {
+		DEFAULT,
+		LEGACY,
+		@3_2_CORE
+	}
 	[CCode (cheader_filename = "gdk/gdk.h", cprefix = "GDK_OWNERSHIP_", type_id = "gdk_grab_ownership_get_type ()")]
 	public enum GrabOwnership {
 		NONE,
@@ -5657,7 +5689,8 @@ namespace Gdk {
 		ALREADY_GRABBED,
 		INVALID_TIME,
 		NOT_VIEWABLE,
-		FROZEN
+		FROZEN,
+		FAILED
 	}
 	[CCode (cheader_filename = "gdk/gdk.h", cprefix = "GDK_GRAVITY_", type_id = "gdk_gravity_get_type ()")]
 	public enum Gravity {
@@ -5886,6 +5919,13 @@ namespace Gdk {
 		[CCode (cname = "GDK_INPUT_ONLY")]
 		INPUT_ONLY
 	}
+	[CCode (cheader_filename = "gdk/gdk.h", cprefix = "GDK_GL_ERROR_")]
+	public errordomain GLError {
+		NOT_AVAILABLE,
+		UNSUPPORTED_FORMAT,
+		UNSUPPORTED_PROFILE;
+		public static GLib.Quark quark ();
+	}
 	[CCode (cheader_filename = "gdk/gdk.h", instance_pos = 1.9)]
 	public delegate void EventFunc (Gdk.Event event);
 	[CCode (cheader_filename = "gdk/gdk.h", instance_pos = 2.9)]
@@ -5919,11 +5959,14 @@ namespace Gdk {
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public const Gdk.Atom SELECTION_SECONDARY;
 	[CCode (cheader_filename = "gdk/gdk.h")]
+	[Deprecated (since = "3.16")]
 	public static void add_option_entries_libgtk_only (GLib.OptionGroup group);
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public static void beep ();
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public static Cairo.Context cairo_create (Gdk.Window window);
+	[CCode (cheader_filename = "gdk/gdk.h")]
+	public static void cairo_draw_from_gl (Cairo.Context cr, Gdk.Window window, int source, int source_type, int buffer_scale, int x, int y, int width, int height);
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public static bool cairo_get_clip_rectangle (Cairo.Context cr, out Gdk.Rectangle rect);
 	[CCode (cheader_filename = "gdk/gdk.h")]
@@ -6054,6 +6097,7 @@ namespace Gdk {
 	[Deprecated (since = "3.0")]
 	public static void pointer_ungrab (uint32 time_);
 	[CCode (cheader_filename = "gdk/gdk.h")]
+	[Deprecated (since = "3.16")]
 	public static void pre_parse_libgtk_only ();
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public static void property_change (Gdk.Window window, Gdk.Atom property, Gdk.Atom type, int format, Gdk.PropMode mode, [CCode (array_length = false, type = "const guchar*")] uint8[] data, int nelements);

@@ -5925,6 +5925,8 @@ namespace Clutter {
 		public unowned Clutter.EventSequence get_sequence (uint point);
 		public void get_threshold_trigger_distance (out float x, out float y);
 		public Clutter.GestureTriggerEdge get_threshold_trigger_edge ();
+		[Deprecated (since = "1.20")]
+		public Clutter.GestureTriggerEdge get_threshold_trigger_egde ();
 		public float get_velocity (uint point, out float velocity_x, out float velocity_y);
 		public void set_n_touch_points (int nb_points);
 		public void set_threshold_trigger_distance (float x, float y);
@@ -8287,8 +8289,6 @@ namespace Clutter {
 	public static bool test_check_actor_at_point (Clutter.Actor stage, Clutter.Point point, Clutter.Actor actor, Clutter.Actor result);
 	[CCode (cheader_filename = "clutter/clutter.h")]
 	public static bool test_check_color_at_point (Clutter.Actor stage, Clutter.Point point, Clutter.Color color, Clutter.Color result);
-	[CCode (cheader_filename = "clutter/clutter.h")]
-	public static unowned Clutter.Actor test_get_stage ();
 	[CCode (cheader_filename = "clutter/clutter.h")]
 	public static void test_init (int argc, string argv);
 	[CCode (cheader_filename = "clutter/clutter.h")]
