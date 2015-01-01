@@ -1546,6 +1546,8 @@ namespace GLib {
 		public unowned string get_hostname ();
 		public uint16 get_port ();
 		public unowned string get_scheme ();
+		[CCode (has_construct_function = false, type = "GSocketConnectable*")]
+		public NetworkAddress.loopback (uint16 port);
 		public static GLib.SocketConnectable parse (string host_and_port, uint16 default_port) throws GLib.Error;
 		public static GLib.SocketConnectable parse_uri (string uri, uint16 default_port) throws GLib.Error;
 		public string hostname { get; construct; }
@@ -1953,6 +1955,7 @@ namespace GLib {
 		public ssize_t receive_with_blocking ([CCode (array_length_cname = "size", array_length_pos = 1.5, array_length_type = "gsize")] uint8[] buffer, bool blocking, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public ssize_t send ([CCode (array_length_cname = "size", array_length_pos = 1.5, array_length_type = "gsize")] uint8[] buffer, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public ssize_t send_message (GLib.SocketAddress? address, [CCode (array_length_cname = "num_vectors", array_length_pos = 2.5)] GLib.OutputVector[] vectors, [CCode (array_length_cname = "num_messages", array_length_pos = 3.5)] GLib.SocketControlMessage[]? messages, int flags, GLib.Cancellable? cancellable = null) throws GLib.Error;
+		public int send_messages ([CCode (array_length_cname = "num_messages", array_length_pos = 1.5, array_length_type = "guint")] GLib.OutputMessage[] messages, int flags, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public ssize_t send_to (GLib.SocketAddress? address, [CCode (array_length_cname = "size", array_length_pos = 2.5, array_length_type = "gsize")] uint8[] buffer, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public ssize_t send_with_blocking ([CCode (array_length_cname = "size", array_length_pos = 1.5, array_length_type = "gsize")] uint8[] buffer, bool blocking, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public void set_blocking (bool blocking);
@@ -2778,9 +2781,12 @@ namespace GLib {
 	public interface NetworkMonitor : GLib.Initable, GLib.Object {
 		public abstract bool can_reach (GLib.SocketConnectable connectable, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public abstract async bool can_reach_async (GLib.SocketConnectable connectable, GLib.Cancellable? cancellable = null) throws GLib.Error;
+		public GLib.NetworkConnectivity get_connectivity ();
 		public static unowned GLib.NetworkMonitor get_default ();
 		public bool get_network_available ();
-		[NoAccessorMethod]
+		[ConcreteAccessor]
+		public abstract GLib.NetworkConnectivity connectivity { get; }
+		[ConcreteAccessor]
 		public abstract bool network_available { get; }
 		public virtual signal void network_changed (bool available);
 	}
@@ -2855,13 +2861,13 @@ namespace GLib {
 		public void set_server_identity (GLib.SocketConnectable identity);
 		public void set_use_ssl3 (bool use_ssl3);
 		public void set_validation_flags (GLib.TlsCertificateFlags flags);
-		[NoAccessorMethod]
+		[ConcreteAccessor]
 		public abstract GLib.List<GLib.ByteArray> accepted_cas { owned get; }
-		[NoAccessorMethod]
-		public abstract GLib.SocketConnectable server_identity { owned get; set construct; }
-		[NoAccessorMethod]
+		[ConcreteAccessor]
+		public abstract GLib.SocketConnectable server_identity { get; set construct; }
+		[ConcreteAccessor]
 		public abstract bool use_ssl3 { get; set construct; }
-		[NoAccessorMethod]
+		[ConcreteAccessor]
 		public abstract GLib.TlsCertificateFlags validation_flags { get; set construct; }
 	}
 	[CCode (cheader_filename = "gio/gio.h", type_cname = "GTlsFileDatabaseInterface", type_id = "g_tls_file_database_get_type ()")]
@@ -2941,6 +2947,16 @@ namespace GLib {
 	public struct InputVector {
 		public void* buffer;
 		public size_t size;
+	}
+	[CCode (cheader_filename = "gio/gio.h", has_type_id = false)]
+	public struct OutputMessage {
+		public weak GLib.SocketAddress address;
+		public GLib.OutputVector vectors;
+		public uint num_vectors;
+		public uint bytes_sent;
+		[CCode (array_length = false, array_null_terminated = true)]
+		public weak GLib.SocketControlMessage[] control_messages;
+		public uint num_control_messages;
 	}
 	[CCode (cheader_filename = "gio/gio.h", has_type_id = false)]
 	public struct OutputVector {
@@ -3301,6 +3317,13 @@ namespace GLib {
 		NONE,
 		FORCE
 	}
+	[CCode (cheader_filename = "gio/gio.h", cprefix = "G_NETWORK_CONNECTIVITY_", type_id = "g_network_connectivity_get_type ()")]
+	public enum NetworkConnectivity {
+		LOCAL,
+		LIMITED,
+		PORTAL,
+		FULL
+	}
 	[CCode (cheader_filename = "gio/gio.h", cprefix = "G_NOTIFICATION_PRIORITY_", type_id = "g_notification_priority_get_type ()")]
 	public enum NotificationPriority {
 		NORMAL,
@@ -3589,7 +3612,9 @@ namespace GLib {
 		PROXY_AUTH_FAILED,
 		PROXY_NEED_AUTH,
 		PROXY_NOT_ALLOWED,
-		BROKEN_PIPE;
+		BROKEN_PIPE,
+		CONNECTION_CLOSED,
+		NOT_CONNECTED;
 		[CCode (cheader_filename = "gio/gio.h")]
 		public static unowned GLib.IOError from_errno (int err_no);
 		[CCode (cheader_filename = "gio/gio.h")]

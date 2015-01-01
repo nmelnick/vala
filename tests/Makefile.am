@@ -37,6 +37,8 @@ TESTS = \
 	basic-types/bug659975.vala \
 	basic-types/bug678791.vala \
 	basic-types/bug686336.vala \
+	basic-types/bug729907.vala \
+	basic-types/bug731017.vala \
 	namespaces.vala \
 	methods/lambda.vala \
 	methods/closures.vala \
@@ -65,6 +67,7 @@ TESTS = \
 	methods/bug723195.vala \
 	methods/bug726347.vala \
 	methods/bug736235.vala \
+	methods/bug737222.vala \
 	methods/generics.vala \
 	control-flow/break.vala \
 	control-flow/expressions-conditional.vala \
@@ -203,6 +206,7 @@ TESTS = \
 	dbus/bug602003.test \
 	gir/bug651773.test \
 	gir/bug667751.test \
+	gir/bug742012.test \
 	$(NULL)
 
 check-TESTS: $(TESTS)

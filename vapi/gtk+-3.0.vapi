@@ -1787,6 +1787,7 @@ namespace Gtk {
 		public uint16 get_text_length ();
 		public bool get_visibility ();
 		public int get_width_chars ();
+		public void grab_focus_without_selecting ();
 		public bool im_context_filter_keypress (Gdk.EventKey event);
 		public int layout_index_to_text_index (int layout_index);
 		public void progress_pulse ();
@@ -3796,6 +3797,8 @@ namespace Gtk {
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
 		public PopoverMenu ();
 		public void open_submenu (string name);
+		[NoAccessorMethod]
+		public string visible_submenu { owned get; set; }
 	}
 	[CCode (cheader_filename = "gtk/gtk.h", type_id = "gtk_print_context_get_type ()")]
 	public class PrintContext : GLib.Object {
@@ -5201,6 +5204,8 @@ namespace Gtk {
 		public Gtk.Justification justification;
 		public Pango.Language language;
 		public int left_margin;
+		public int letter_spacing;
+		public uint no_fallback;
 		[CCode (array_length = false)]
 		public weak uint[] padding;
 		public Gdk.Color pg_bg_color;
@@ -5270,6 +5275,7 @@ namespace Gtk {
 		public void insert_at_cursor (string text, int len);
 		public bool insert_interactive (ref Gtk.TextIter iter, string text, int len, bool default_editable);
 		public bool insert_interactive_at_cursor (string text, int len, bool default_editable);
+		public void insert_markup (ref Gtk.TextIter iter, string markup, int len);
 		public void insert_range (ref Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end);
 		public bool insert_range_interactive (ref Gtk.TextIter iter, Gtk.TextIter start, Gtk.TextIter end, bool default_editable);
 		public void insert_with_tags (ref Gtk.TextIter iter, string text, int len, ...);
@@ -5375,6 +5381,10 @@ namespace Gtk {
 		[NoAccessorMethod]
 		public bool editable_set { get; set; }
 		[NoAccessorMethod]
+		public bool fallback { get; set; }
+		[NoAccessorMethod]
+		public bool fallback_set { get; set; }
+		[NoAccessorMethod]
 		public string family { owned get; set; }
 		[NoAccessorMethod]
 		public bool family_set { get; set; }
@@ -5411,6 +5421,10 @@ namespace Gtk {
 		public int left_margin { get; set; }
 		[NoAccessorMethod]
 		public bool left_margin_set { get; set; }
+		[NoAccessorMethod]
+		public int letter_spacing { get; set; }
+		[NoAccessorMethod]
+		public bool letter_spacing_set { get; set; }
 		[NoAccessorMethod]
 		public string name { owned get; construct; }
 		[NoAccessorMethod]
@@ -6397,6 +6411,7 @@ namespace Gtk {
 		public class unowned GLib.ParamSpec find_style_property (string property_name);
 		public void freeze_child_notify ();
 		public virtual unowned Atk.Object get_accessible ();
+		public unowned GLib.ActionGroup? get_action_group (string prefix);
 		public int get_allocated_baseline ();
 		public int get_allocated_height ();
 		public int get_allocated_width ();
@@ -6514,6 +6529,8 @@ namespace Gtk {
 		public bool is_toplevel ();
 		public bool is_visible ();
 		public GLib.List<weak GLib.Closure> list_accel_closures ();
+		[CCode (array_length = false, array_null_terminated = true)]
+		public string*[] list_action_prefixes ();
 		public GLib.List<weak Gtk.Widget> list_mnemonic_labels ();
 		[CCode (cname = "gtk_widget_class_list_style_properties")]
 		public class unowned GLib.ParamSpec list_style_properties (uint n_properties);
@@ -7280,6 +7297,7 @@ namespace Gtk {
 	}
 	[CCode (cheader_filename = "gtk/gtk.h", type_cname = "GtkScrollableInterface")]
 	public interface Scrollable : GLib.Object {
+		public virtual bool get_border (out Gtk.Border border);
 		public unowned Gtk.Adjustment get_hadjustment ();
 		public Gtk.ScrollablePolicy get_hscroll_policy ();
 		public unowned Gtk.Adjustment get_vadjustment ();
@@ -9312,6 +9330,8 @@ namespace Gtk {
 	public const string STYLE_CLASS_TOUCH_SELECTION;
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public const string STYLE_CLASS_TROUGH;
+	[CCode (cheader_filename = "gtk/gtk.h")]
+	public const string STYLE_CLASS_UNDERSHOOT;
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public const string STYLE_CLASS_VERTICAL;
 	[CCode (cheader_filename = "gtk/gtk.h")]
