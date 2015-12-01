@@ -41,6 +41,18 @@ namespace WebKit {
 		public unowned string get_title ();
 		public unowned string get_uri ();
 	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_color_chooser_request_get_type ()")]
+	public class ColorChooserRequest : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected ColorChooserRequest ();
+		public void cancel ();
+		public void finish ();
+		public Gdk.Rectangle get_element_rectangle ();
+		public Gdk.RGBA get_rgba ();
+		public void set_rgba (Gdk.RGBA rgba);
+		public Gdk.RGBA rgba { get; set construct; }
+		public signal void finished ();
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_context_menu_get_type ()")]
 	public class ContextMenu : GLib.Object {
 		[CCode (has_construct_function = false)]
@@ -125,9 +137,16 @@ namespace WebKit {
 		public WebKit.URIResponse response { get; }
 		public signal void created_destination (string destination);
 		public virtual signal bool decide_destination (string suggested_filename);
-		public signal void failed (void* error);
+		public signal void failed ([CCode (type = "gpointer")] WebKit.DownloadError error);
 		public signal void finished ();
 		public signal void received_data (uint64 data_length);
+	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_editor_state_get_type ()")]
+	public class EditorState : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected EditorState ();
+		public uint get_typing_attributes ();
+		public uint typing_attributes { get; }
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_favicon_database_get_type ()")]
 	public class FaviconDatabase : GLib.Object {
@@ -215,6 +234,12 @@ namespace WebKit {
 		public string link_uri { get; construct; }
 		public string media_uri { get; construct; }
 	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_install_missing_media_plugins_permission_request_get_type ()")]
+	public class InstallMissingMediaPluginsPermissionRequest : GLib.Object, WebKit.PermissionRequest {
+		[CCode (has_construct_function = false)]
+		protected InstallMissingMediaPluginsPermissionRequest ();
+		public unowned string get_description ();
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", ref_function = "webkit_javascript_result_ref", type_id = "webkit_javascript_result_get_type ()", unref_function = "webkit_javascript_result_unref")]
 	[Compact]
 	public class JavascriptResult {
@@ -271,12 +296,14 @@ namespace WebKit {
 	public class Notification : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Notification ();
+		public void close ();
 		public unowned string get_body ();
 		public uint64 get_id ();
 		public unowned string get_title ();
 		public string body { get; }
 		public uint64 id { get; }
 		public string title { get; }
+		public signal void closed ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_notification_permission_request_get_type ()")]
 	public class NotificationPermissionRequest : GLib.Object, WebKit.PermissionRequest {
@@ -314,7 +341,7 @@ namespace WebKit {
 		public Gtk.PrintSettings print_settings { get; set; }
 		[NoAccessorMethod]
 		public WebKit.WebView web_view { owned get; construct; }
-		public signal void failed (void* error);
+		public signal void failed ([CCode (type = "gpointer")] WebKit.PrintError error);
 		public signal void finished ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_response_policy_decision_get_type ()")]
@@ -357,6 +384,7 @@ namespace WebKit {
 	public class Settings : GLib.Object {
 		[CCode (has_construct_function = false)]
 		public Settings ();
+		public bool get_allow_file_access_from_file_urls ();
 		public bool get_allow_modal_dialogs ();
 		public bool get_auto_load_images ();
 		public unowned string get_cursive_font_family ();
@@ -405,6 +433,7 @@ namespace WebKit {
 		public unowned string get_serif_font_family ();
 		public unowned string get_user_agent ();
 		public bool get_zoom_text_only ();
+		public void set_allow_file_access_from_file_urls (bool allowed);
 		public void set_allow_modal_dialogs (bool allowed);
 		public void set_auto_load_images (bool enabled);
 		public void set_cursive_font_family (string cursive_font_family);
@@ -454,6 +483,7 @@ namespace WebKit {
 		public void set_user_agent (string? user_agent);
 		public void set_user_agent_with_application_details (string? application_name, string? application_version);
 		public void set_zoom_text_only (bool zoom_text_only);
+		public bool allow_file_access_from_file_urls { get; set construct; }
 		public bool allow_modal_dialogs { get; set construct; }
 		public bool auto_load_images { get; set construct; }
 		public string cursive_font_family { get; set construct; }
@@ -596,10 +626,13 @@ namespace WebKit {
 		[CCode (array_length = false, array_null_terminated = true)]
 		public unowned string[] get_spell_checking_languages ();
 		public WebKit.TLSErrorsPolicy get_tls_errors_policy ();
+		public uint get_web_process_count_limit ();
+		public unowned WebKit.WebsiteDataManager get_website_data_manager ();
 		public void prefetch_dns (string hostname);
 		public void register_uri_scheme (string scheme, owned WebKit.URISchemeRequestCallback callback);
 		public void set_additional_plugins_directory (string directory);
 		public void set_cache_model (WebKit.CacheModel cache_model);
+		[Deprecated (since = "2.10.")]
 		public void set_disk_cache_directory (string directory);
 		public void set_favicon_database_directory (string? path);
 		public void set_preferred_languages ([CCode (array_length = false, array_null_terminated = true)] string[]? languages);
@@ -609,8 +642,13 @@ namespace WebKit {
 		public void set_tls_errors_policy (WebKit.TLSErrorsPolicy policy);
 		public void set_web_extensions_directory (string directory);
 		public void set_web_extensions_initialization_user_data (GLib.Variant user_data);
+		public void set_web_process_count_limit (uint limit);
+		[CCode (has_construct_function = false)]
+		public WebContext.with_website_data_manager (WebKit.WebsiteDataManager manager);
+		[Deprecated (since = "2.10.")]
 		[NoAccessorMethod]
 		public string local_storage_directory { owned get; construct; }
+		public WebKit.WebsiteDataManager website_data_manager { get; construct; }
 		public virtual signal void download_started (WebKit.Download download);
 		public virtual signal void initialize_web_extensions ();
 	}
@@ -645,7 +683,7 @@ namespace WebKit {
 		public unowned string get_uri ();
 		public WebKit.URIResponse response { get; }
 		public string uri { get; }
-		public signal void failed (void* error);
+		public signal void failed ([CCode (type = "gpointer")] GLib.Error error);
 		public signal void failed_with_tls_errors (GLib.TlsCertificate certificate, GLib.TlsCertificateFlags errors);
 		public signal void finished ();
 		public signal void received_data (uint64 data_length);
@@ -661,9 +699,12 @@ namespace WebKit {
 		public bool can_show_mime_type (string mime_type);
 		public WebKit.Download download_uri (string uri);
 		public void execute_editing_command (string command);
+		public void execute_editing_command_with_argument (string command, string argument);
 		public unowned WebKit.BackForwardList get_back_forward_list ();
+		public Gdk.RGBA get_background_color ();
 		public unowned WebKit.WebContext get_context ();
 		public unowned string get_custom_charset ();
+		public unowned WebKit.EditorState get_editor_state ();
 		public double get_estimated_load_progress ();
 		public unowned Cairo.Surface get_favicon ();
 		public unowned WebKit.FindController get_find_controller ();
@@ -681,6 +722,7 @@ namespace WebKit {
 		public void go_back ();
 		public void go_forward ();
 		public void go_to_back_forward_list_item (WebKit.BackForwardListItem list_item);
+		public bool is_editable ();
 		public void load_alternate_html (string content, string content_uri, string? base_uri);
 		public void load_bytes (GLib.Bytes bytes, string? mime_type, string? encoding, string? base_uri);
 		public void load_html (string content, string? base_uri);
@@ -694,7 +736,9 @@ namespace WebKit {
 		public async WebKit.JavascriptResult run_javascript_from_gresource (string resource, GLib.Cancellable? cancellable) throws GLib.Error;
 		public async GLib.InputStream save (WebKit.SaveMode save_mode, GLib.Cancellable? cancellable) throws GLib.Error;
 		public async bool save_to_file (GLib.File file, WebKit.SaveMode save_mode, GLib.Cancellable? cancellable) throws GLib.Error;
+		public void set_background_color (Gdk.RGBA rgba);
 		public void set_custom_charset (string? charset);
+		public void set_editable (bool editable);
 		public void set_settings (WebKit.Settings settings);
 		public void set_zoom_level (double zoom_level);
 		public void stop_loading ();
@@ -704,10 +748,14 @@ namespace WebKit {
 		public WebView.with_settings (WebKit.Settings settings);
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
 		public WebView.with_user_content_manager (WebKit.UserContentManager user_content_manager);
+		[NoAccessorMethod]
+		public bool editable { get; set; }
 		public double estimated_load_progress { get; }
 		public void* favicon { get; }
 		[NoAccessorMethod]
 		public bool is_loading { get; }
+		[NoAccessorMethod]
+		public bool is_playing_audio { get; }
 		public WebKit.WebView related_view { construct; }
 		public WebKit.Settings settings { set construct; }
 		public string title { get; }
@@ -718,7 +766,6 @@ namespace WebKit {
 		public double zoom_level { get; set; }
 		public virtual signal bool authenticate (WebKit.AuthenticationRequest request);
 		public virtual signal void close ();
-		public virtual signal bool close_notification (WebKit.Notification notification);
 		public virtual signal bool context_menu (WebKit.ContextMenu context_menu, Gdk.Event event, WebKit.HitTestResult hit_test_result);
 		public virtual signal void context_menu_dismissed ();
 		public signal Gtk.Widget create (WebKit.NavigationAction navigation_action);
@@ -727,7 +774,7 @@ namespace WebKit {
 		public virtual signal void insecure_content_detected (WebKit.InsecureContentEvent event);
 		public virtual signal bool leave_fullscreen ();
 		public virtual signal void load_changed (WebKit.LoadEvent load_event);
-		public virtual signal bool load_failed (WebKit.LoadEvent load_event, string failing_uri, void* error);
+		public virtual signal bool load_failed (WebKit.LoadEvent load_event, string failing_uri, [CCode (type = "gpointer")] GLib.Error error);
 		public virtual signal bool load_failed_with_tls_errors (string failing_uri, GLib.TlsCertificate certificate, GLib.TlsCertificateFlags errors);
 		public virtual signal void mouse_target_changed (WebKit.HitTestResult hit_test_result, uint modifiers);
 		public virtual signal bool permission_request (WebKit.PermissionRequest permission_request);
@@ -735,6 +782,7 @@ namespace WebKit {
 		public virtual signal void ready_to_show ();
 		public virtual signal void resource_load_started (WebKit.WebResource resource, WebKit.URIRequest request);
 		public virtual signal void run_as_modal ();
+		public virtual signal bool run_color_chooser (WebKit.ColorChooserRequest request);
 		public virtual signal bool run_file_chooser (WebKit.FileChooserRequest request);
 		public virtual signal bool script_dialog (WebKit.ScriptDialog dialog);
 		public virtual signal bool show_notification (WebKit.Notification notification);
@@ -745,6 +793,25 @@ namespace WebKit {
 	public class WebViewBase : Gtk.Container, Atk.Implementor, Gtk.Buildable {
 		[CCode (has_construct_function = false)]
 		protected WebViewBase ();
+	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_website_data_manager_get_type ()")]
+	public class WebsiteDataManager : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected WebsiteDataManager ();
+		public unowned string get_base_cache_directory ();
+		public unowned string get_base_data_directory ();
+		public unowned string get_disk_cache_directory ();
+		public unowned string get_indexeddb_directory ();
+		public unowned string get_local_storage_directory ();
+		public unowned string get_offline_application_cache_directory ();
+		public unowned string get_websql_directory ();
+		public string base_cache_directory { get; construct; }
+		public string base_data_directory { get; construct; }
+		public string disk_cache_directory { get; construct; }
+		public string indexeddb_directory { get; construct; }
+		public string local_storage_directory { get; construct; }
+		public string offline_application_cache_directory { get; construct; }
+		public string websql_directory { get; construct; }
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_window_properties_get_type ()")]
 	public class WindowProperties : GLib.Object {
@@ -759,7 +826,7 @@ namespace WebKit {
 		public bool get_statusbar_visible ();
 		public bool get_toolbar_visible ();
 		public bool fullscreen { get; construct; }
-		public Cairo.RectangleInt geometry { get; construct; }
+		public Gdk.Rectangle geometry { get; construct; }
 		public bool locationbar_visible { get; construct; }
 		public bool menubar_visible { get; construct; }
 		public bool resizable { get; construct; }
@@ -855,6 +922,15 @@ namespace WebKit {
 		FOR_SESSION,
 		PERMANENT
 	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_EDITOR_TYPING_ATTRIBUTE_", type_id = "webkit_editor_typing_attributes_get_type ()")]
+	[Flags]
+	public enum EditorTypingAttributes {
+		NONE,
+		BOLD,
+		ITALIC,
+		UNDERLINE,
+		STRIKETHROUGH
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_FIND_OPTIONS_", type_id = "webkit_find_options_get_type ()")]
 	[Flags]
 	public enum FindOptions {
@@ -927,7 +1003,8 @@ namespace WebKit {
 	[Flags]
 	public enum SnapshotOptions {
 		NONE,
-		INCLUDE_SELECTION_HIGHLIGHTING
+		INCLUDE_SELECTION_HIGHLIGHTING,
+		TRANSPARENT_BACKGROUND
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_SNAPSHOT_REGION_", type_id = "webkit_snapshot_region_get_type ()")]
 	public enum SnapshotRegion {
@@ -1017,8 +1094,12 @@ namespace WebKit {
 	public delegate void URISchemeRequestCallback (WebKit.URISchemeRequest request);
 	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_COPY")]
 	public const string EDITING_COMMAND_COPY;
+	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_CREATE_LINK")]
+	public const string EDITING_COMMAND_CREATE_LINK;
 	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_CUT")]
 	public const string EDITING_COMMAND_CUT;
+	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_INSERT_IMAGE")]
+	public const string EDITING_COMMAND_INSERT_IMAGE;
 	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_PASTE")]
 	public const string EDITING_COMMAND_PASTE;
 	[CCode (cheader_filename = "webkit2/webkit2.h", cname = "WEBKIT_EDITING_COMMAND_REDO")]

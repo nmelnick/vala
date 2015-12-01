@@ -1913,7 +1913,17 @@ namespace GLib {
 		public void set_max_threads (int max_threads) throws ThreadError;
 		public int get_max_threads ();
 		public uint get_num_threads ();
+		public bool move_to_front (T data);
 		public uint unprocessed ();
+		[CCode (cname = "g_thread_pool_free")]
+		void _free (bool immediate, bool wait);
+		[CCode (cname = "vala__g_thread_pool_free_wrapper")]
+		public static void free (owned ThreadPool? pool, bool immediate, bool wait) {
+			ThreadPool* ptr = (owned) pool;
+			if (ptr != null) {
+				((ThreadPool)ptr)._free (immediate, wait);
+			}
+		}
 		public static void set_max_unused_threads (int max_threads);
 		public static int get_max_unused_threads ();
 		public static uint get_num_unused_threads ();
@@ -1941,11 +1951,17 @@ namespace GLib {
 		public void unlock ();
 		public void ref_unlocked ();
 		public void unref_and_unlock ();
+		public void push_front (owned G data);
+		public void push_front_unlocked (owned G data);
 		public void push_unlocked (owned G data);
 		public void push_sorted_unlocked (owned G data, CompareDataFunc<G> func);
 		public G pop_unlocked ();
+		public bool remove (G data);
+		public bool remove_unlocked (G data);
 		public G? try_pop_unlocked ();
 		public G? timed_pop_unlocked (ref TimeVal end_time);
+		public G? timeout_pop (uint64 timeout);
+		public G? timeout_pop_unlocked (uint64 timeout);
 		public int length_unlocked ();
 		public void sort_unlocked (CompareDataFunc<G> func);
 	}
@@ -2159,15 +2175,19 @@ namespace GLib {
 	[Assert]
 	public static void assert (bool expr);
 	[Assert]
+	public static void assert_cmpmem (uint8[] m1, uint8[] m2);
+	[Assert]
+	public static void assert_error (Error? error, Quark error_domain, int error_code);
+	[Assert]
 	public static void assert_false (bool expr);
 	[Assert]
 	public static void assert_true (bool expr);
 	[Assert]
 	public static void assert_null (void* expr);
 	[Assert]
-	public static void assert_nonnull (void* expr);
+	public static void assert_no_error (Error? error);
 	[Assert]
-	public static void assert_no_error (Error e);
+	public static void assert_nonnull (void* expr);
 	[NoReturn]
 	public static void assert_not_reached ();
 
@@ -2225,6 +2245,7 @@ namespace GLib {
 
 	namespace Log {
 		public static uint set_handler (string? log_domain, LogLevelFlags log_levels, LogFunc log_func);
+		public static void set_handler_full (string? log_domain, LogLevelFlags log_levels, owned LogFunc log_func);
 		public static void set_default_handler (LogFunc log_func);
 		[CCode (delegate_target = false)]
 		public static GLib.LogFunc default_handler;
@@ -2259,6 +2280,7 @@ namespace GLib {
 
 	public static string convert (string str, ssize_t len, string to_codeset, string from_codeset, out size_t bytes_read = null, out size_t bytes_written = null) throws ConvertError;
 	public static bool get_charset (out unowned string charset);
+	public static bool get_filename_charsets ([CCode (array_length = false, array_null_terminated = true)] out unowned string[] charsets);
 
 	[SimpleType]
 	public struct IConv {
@@ -2669,6 +2691,8 @@ namespace GLib {
 		public static unowned string get_user_data_dir ();
 		[CCode (cname = "g_get_user_config_dir")]
 		public static unowned string get_user_config_dir ();
+		[CCode (cname = "g_get_user_runtime_dir")]
+		public static unowned string get_user_runtime_dir ();
 		[CCode (cname = "g_get_user_special_dir")]
 		public static unowned string get_user_special_dir (UserDirectory directory);
 		[CCode (cname = "g_get_system_data_dirs", array_length = false, array_null_terminated = true)]
@@ -2715,6 +2739,14 @@ namespace GLib {
 		VIDEOS,
 		[CCode (cname = "G_USER_N_DIRECTORIES")]
 		N_DIRECTORIES
+	}
+
+	namespace Hostname {
+		public static bool is_non_ascii (string hostname);
+		public static bool is_ascii_encoded (string hostname);
+		public static bool is_ip_address (string hostname);
+		public static string to_ascii (string hostname);
+		public static string to_unicode (string hostname);
 	}
 
 	namespace Path {
@@ -3242,7 +3274,7 @@ namespace GLib {
 		[CCode (cname = "g_mkdir_with_parents")]
 		public static int create_with_parents (string pathname, int mode);
 		[CCode (cname = "mkdtemp")]
-		public static unowned string mkdtemp (string template);
+		public static string mkdtemp (owned string template);
 		[CCode (cname = "g_dir_make_tmp")]
 		public static string make_tmp (string tmpl) throws FileError;
 		[CCode (cname = "g_rmdir")]
@@ -3371,7 +3403,11 @@ namespace GLib {
 	}
 
 	[Compact]
+#if GLIB_2_44
+	[CCode (ref_function = "g_option_group_ref", unref_function = "g_option_group_unref", type_id = "G_TYPE_OPTION_GROUP")]
+#else
 	[CCode (free_function = "g_option_group_free")]
+#endif
 	public class OptionGroup {
 		public OptionGroup (string name, string description, string help_description, void* user_data = null, DestroyNotify? destroy = null);
 		public void add_entries ([CCode (array_length = false)] OptionEntry[] entries);
@@ -4745,6 +4781,10 @@ namespace GLib {
 		public const uint @2_34;
 		public const uint @2_36;
 		public const uint @2_38;
+		public const uint @2_40;
+		public const uint @2_42;
+		public const uint @2_44;
+		public const uint @2_46;
 
 		[CCode (cname = "glib_binary_age")]
 		public const uint binary_age;
@@ -5043,7 +5083,7 @@ namespace GLib {
 		public bool lookup (string key, string format_string, ...);
 		public GLib.Variant lookup_value (string key, GLib.VariantType expected_type);
 		public bool contains (string key);
-		public void insert (string key, string fornat_string);
+		public void insert (string key, string format_string, ...);
 		public void insert_value (string key, GLib.Variant value);
 		public bool remove (string key);
 		public void clear ();
@@ -5091,7 +5131,7 @@ namespace GLib {
 		}
 
 		[CCode (cheader_filename = "glib-unix.h")]
-		public static bool open_pipe (int fds, int flags) throws GLib.Error;
+		public static bool open_pipe ([CCode (array_length = false, array_null_terminated = false)] int[] fds, int flags) throws GLib.Error;
 		[CCode (cheader_filename = "glib-unix.h")]
 		public static bool set_fd_nonblocking (int fd, bool nonblock) throws GLib.Error;
 	}

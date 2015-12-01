@@ -42,6 +42,7 @@ class Vala.Compiler {
 	static string[] plugin_directories;
 	static string vapi_filename;
 	static string library;
+	static string shared_library;
 	static string gir;
 	[CCode (array_length = false, array_null_terminated = true)]
 	static string[] packages;
@@ -105,6 +106,7 @@ class Vala.Compiler {
 		{ "pkg", 0, 0, OptionArg.STRING_ARRAY, ref packages, "Include binding for PACKAGE", "PACKAGE..." },
 		{ "vapi", 0, 0, OptionArg.FILENAME, ref vapi_filename, "Output VAPI file name", "FILE" },
 		{ "library", 0, 0, OptionArg.STRING, ref library, "Library name", "NAME" },
+		{ "shared-library", 0, 0, OptionArg.STRING, ref shared_library, "Shared library name used in generated gir", "NAME" },
 		{ "gir", 0, 0, OptionArg.STRING, ref gir, "GObject-Introspection repository file name", "NAME-VERSION.gir" },
 		{ "basedir", 'b', 0, OptionArg.FILENAME, ref basedir, "Base source directory", "DIRECTORY" },
 		{ "directory", 'd', 0, OptionArg.FILENAME, ref directory, "Output directory", "DIRECTORY" },
@@ -177,8 +179,7 @@ class Vala.Compiler {
 		CodeContext.push (context);
 
 		if (disable_diagnostic_colors == false) {
-			string[] env_args = Environ.get ();
-			unowned string env_colors = Environ.get_variable (env_args, "VALA_COLORS");
+			unowned string env_colors = Environment.get_variable ("VALA_COLORS");
 			if (env_colors != null) {
 				context.report.set_colors (env_colors);
 			} else {
@@ -268,7 +269,7 @@ class Vala.Compiler {
 			}
 		}
 
-		for (int i = 2; i <= 28; i += 2) {
+		for (int i = 2; i <= 32; i += 2) {
 			context.add_define ("VALA_0_%d".printf (i));
 		}
 
@@ -423,7 +424,7 @@ class Vala.Compiler {
 							gir_directory = context.directory;
 						}
 
-						gir_writer.write_file (context, gir_directory, gir, gir_namespace, gir_version, library);
+						gir_writer.write_file (context, gir_directory, gir, gir_namespace, gir_version, library, shared_library);
 					}
 				}
 

@@ -146,6 +146,7 @@ namespace GLib {
 		public int values_cmp (Value value1, Value value2);
 		public unowned string get_blurb ();
 		public unowned string get_name ();
+		public Quark get_name_quark ();
 		public unowned string get_nick ();
 		public void* get_qdata (Quark quark);
 		public void set_qdata (Quark quark, void* data);
@@ -293,7 +294,11 @@ namespace GLib {
 	public class ObjectClass : TypeClass {
 		public unowned ParamSpec? find_property (string property_name);
 		[CCode (array_length_type = "guint")]
+#if VALA_0_26
+		public (unowned ParamSpec)[] list_properties ();
+#else
 		public unowned ParamSpec[] list_properties ();
+#endif
 		public void install_property (uint property_id, ParamSpec pspec);
 	}
 
@@ -450,6 +455,11 @@ namespace GLib {
 
 	[CCode (has_target = false)]
 	public delegate void ValueTransform (Value src_value, ref Value dest_value);
+
+	[CCode (has_target = false)]
+	public delegate void* BoxedCopyFunc (void* boxed);
+	[CCode (has_target = false)]
+	public delegate void* BoxedFreeFunc (void* boxed);
 
 	[CCode (copy_function = "g_value_copy", destroy_function = "g_value_unset", type_id = "G_TYPE_VALUE", marshaller_type_name = "BOXED", get_value_function = "g_value_get_boxed", set_value_function = "g_value_set_boxed", take_value_function = "g_value_take_boxed", type_signature = "v")]
 	public struct Value {

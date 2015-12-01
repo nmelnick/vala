@@ -7,7 +7,7 @@ namespace Atspi {
 		public weak Atspi.Accessible accessible_parent;
 		public weak GLib.HashTable<void*,void*> attributes;
 		public uint cached_properties;
-		public weak GLib.List<void*> children;
+		public weak GLib.GenericArray<void*> children;
 		public weak string description;
 		public int interfaces;
 		public weak string name;
@@ -692,6 +692,10 @@ namespace Atspi {
 		RATING,
 		TIMER,
 		STATIC,
+		MATH_FRACTION,
+		MATH_ROOT,
+		SUBSCRIPT,
+		SUPERSCRIPT,
 		LAST_DEFINED;
 		public static string get_name (Atspi.Role role);
 	}
@@ -740,6 +744,7 @@ namespace Atspi {
 		VISITED,
 		CHECKABLE,
 		HAS_POPUP,
+		READ_ONLY,
 		LAST_DEFINED
 	}
 	[CCode (cheader_filename = "atspi/atspi.h", cprefix = "ATSPI_TEXT_BOUNDARY_", type_id = "atspi_text_boundary_type_get_type ()")]

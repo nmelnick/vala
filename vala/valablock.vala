@@ -48,7 +48,7 @@ public class Vala.Block : Symbol, Statement {
 	/**
 	 * Creates a new block.
 	 *
-	 * @param source reference to source code
+	 * @param source_reference  reference to source code
 	 */
 	public Block (SourceReference? source_reference) {
 		base (null, source_reference);
@@ -86,7 +86,7 @@ public class Vala.Block : Symbol, Statement {
 	/**
 	 * Add a local variable to this block.
 	 *
-	 * @param decl a variable declarator
+	 * @param local a variable declarator
 	 */
 	public void add_local_variable (LocalVariable local) {
 		var parent_block = parent_symbol;

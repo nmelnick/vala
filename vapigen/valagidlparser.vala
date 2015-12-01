@@ -2263,6 +2263,13 @@ public class Vala.GIdlParser : CodeVisitor {
 					if (eval (nv[1]) == "1") {
 						return_type.value_owned = true;
 					}
+				} else if (nv[0] == "transfer_container") {
+					if (eval (nv[1]) == "1") {
+						return_type.value_owned = true;
+						if (return_type is ArrayType) {
+							((ArrayType) return_type).element_type.value_owned = false;
+						}
+					}
 				} else if (nv[0] == "destroys_instance") {
 					if (eval (nv[1]) == "1") {
 						m.set_attribute ("DestroysInstance", true, m.source_reference);
@@ -2504,6 +2511,8 @@ public class Vala.GIdlParser : CodeVisitor {
 						p.variable_type = param_type = parse_type_from_string (eval (nv[1]), false);
 					} else if (nv[0] == "ctype") {
 						p.set_attribute_string ("CCode", "type", eval (nv[1]));
+					} else if (nv[0] == "scope") {
+						p.set_attribute_string ("CCode", "scope", eval (nv[1]));
 					} else if (nv[0] == "type_arguments") {
 						parse_type_arguments_from_string (param_type, eval (nv[1]));
 					} else if (nv[0] == "default_value") {

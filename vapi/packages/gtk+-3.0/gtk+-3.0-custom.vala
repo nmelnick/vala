@@ -50,6 +50,11 @@ namespace Gtk {
 		public virtual void forall_internal(bool include_internal, Gtk.Callback callback);
 	}
 
+	public class CssProvider {
+		[CCode (cname = "gtk_css_provider_load_from_data")]
+		public bool load_from_buffer ([CCode (array_length_cname = "length", array_length_pos = 1.1, array_length_type = "gssize")] uint8[] data) throws GLib.Error;
+	}
+
 	[CCode (type_id = "gtk_notebook_get_type ()")]
 	public class Notebook {
 		public int page_num (Widget child);
@@ -58,7 +63,7 @@ namespace Gtk {
 	[CCode (type_id = "gtk_status_icon_get_type ()")]
 	public class StatusIcon {
 		[CCode (instance_pos = -1)]
-		public void position_menu (Gtk.Menu menu, out int x, out int y, out bool push_in);
+		public void position_menu (Gtk.Menu menu, ref int x, ref int y, out bool push_in);
 	}
 
 	[CCode (type_id = "gtk_ui_manager_get_type ()")]
@@ -100,7 +105,7 @@ namespace Gtk {
 	public interface FileChooserEmbed : GLib.Object {
 	}
 
-	public interface FileChooser: Gtk.Widget {
+	public interface FileChooser: GLib.Object {
 		public GLib.SList<GLib.File> get_files ();
 	}
 

@@ -400,12 +400,12 @@ GIR_BINDINGS = \
 	clutter-1.0 \
 	clutter-gdk-1.0 \
 	clutter-gtk-1.0 \
-	clutter-gst-1.0 \
 	clutter-gst-2.0 \
 	clutter-gst-3.0 \
 	clutter-x11-1.0 \
 	cogl-pango-1.0 \
 	gdk-3.0 \
+	gdk-x11-3.0 \
 	gdk-pixbuf-2.0 \
 	gdl-3.0 \
 	geocode-glib-1.0 \

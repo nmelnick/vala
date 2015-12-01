@@ -1,3 +1,44 @@
+Vala 0.30.0
+===========
+
+ * Binding updates.
+
+Vala 0.29.3
+===========
+
+ * Add --shared-library option for GIR files.
+ * Bug fixes and binding updates.
+
+Vala 0.29.2
+===========
+
+ * Bug fixes and binding updates.
+
+Vala 0.29.1
+===========
+
+ * Binding updates.
+
+Vala 0.28.0
+===========
+
+ * Binding updates.
+
+Vala 0.27.2
+===========
+
+ * Bug fixes and binding updates.
+
+Vala 0.27.1
+===========
+
+ * Print compiler messages in color.
+ * Add clutter-gdk-1.0 bindings.
+ * Add clutter-gst-3.0 bindings.
+ * Add clutter-x11-1.0 bindings.
+ * Add rest-extras-0.7 bindings.
+ * Bug fix and binding updates.
+
 Vala 0.26.0
 ===========
 

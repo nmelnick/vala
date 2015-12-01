@@ -185,6 +185,8 @@ namespace GI {
 		public static unowned GI.Repository get_default ();
 		[CCode (array_length = false, array_null_terminated = true)]
 		public string[] get_dependencies (string namespace_);
+		[CCode (array_length = false, array_null_terminated = true)]
+		public string[] get_immediate_dependencies (string namespace_);
 		public GI.BaseInfo get_info (string namespace_, int index);
 		[CCode (array_length = false, array_null_terminated = true)]
 		public string[] get_loaded_namespaces ();
@@ -212,6 +214,7 @@ namespace GI {
 	public class StructInfo : GI.BaseInfo {
 		[CCode (has_construct_function = false)]
 		protected StructInfo ();
+		public static GI.FieldInfo find_field (GI.StructInfo info, string name);
 		public static GI.FunctionInfo find_method (GI.StructInfo info, string name);
 		public static size_t get_alignment (GI.StructInfo info);
 		public static GI.FieldInfo get_field (GI.StructInfo info, int n);
@@ -266,6 +269,7 @@ namespace GI {
 	public class VFuncInfo : GI.BaseInfo {
 		[CCode (has_construct_function = false)]
 		protected VFuncInfo ();
+		public static void* get_address (GI.VFuncInfo info, GLib.Type implementor_gtype) throws GLib.Error;
 		public static GI.VFuncInfoFlags get_flags (GI.VFuncInfo info);
 		public static GI.FunctionInfo get_invoker (GI.VFuncInfo info);
 		public static int get_offset (GI.VFuncInfo info);

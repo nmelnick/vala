@@ -33,6 +33,8 @@ namespace Gdk {
 		public Gdk.EventSelection selection { [CCode (cname = "(GdkEventSelection *)")] get; }
 		public Gdk.EventSetting setting { [CCode (cname = "(GdkEventSetting *)")] get; }
 		public Gdk.EventTouch touch { [CCode (cname = "(GdkEventTouch *)")] get; }
+		public Gdk.EventTouchpadPinch touchpad_pinch { [CCode (cname = "(GdkEventTouchpadPinch *)")] get; }
+		public Gdk.EventTouchpadSwipe touchpad_swipe { [CCode (cname = "(GdkEventTouchpadSwipe *)")] get; }
 		public Gdk.EventVisibility visibility { [CCode (cname = "(GdkEventVisibility *)")] get; }
 		public Gdk.EventWindowState window_state { [CCode (cname = "(GdkEventWindowState *)")] get; }
 	}
@@ -44,6 +46,7 @@ namespace Gdk {
 		public string str;
 	}
 
+	[CCode (cheader_filename = "gdk/gdk.h")]
 	public struct Rectangle : Cairo.RectangleInt {
 		public bool intersect (Gdk.Rectangle src2, out Gdk.Rectangle dest);
 		public void union (Gdk.Rectangle src2, out Gdk.Rectangle dest);

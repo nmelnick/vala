@@ -1173,17 +1173,17 @@ namespace Gtk {
 		public unowned Gdk.Display get_display ();
 		public static unowned Gtk.Clipboard get_for_display (Gdk.Display display, Gdk.Atom selection);
 		public unowned GLib.Object get_owner ();
-		public void request_contents (Gdk.Atom target, Gtk.ClipboardReceivedFunc callback);
-		public void request_image (Gtk.ClipboardImageReceivedFunc callback);
-		public void request_rich_text (Gtk.TextBuffer buffer, Gtk.ClipboardRichTextReceivedFunc callback);
-		public void request_targets (Gtk.ClipboardTargetsReceivedFunc callback);
-		public void request_text (Gtk.ClipboardTextReceivedFunc callback);
-		public void request_uris (Gtk.ClipboardURIReceivedFunc callback);
+		public void request_contents (Gdk.Atom target, [CCode (scope = "async")] Gtk.ClipboardReceivedFunc callback);
+		public void request_image ([CCode (scope = "async")] Gtk.ClipboardImageReceivedFunc callback);
+		public void request_rich_text (Gtk.TextBuffer buffer, [CCode (scope = "async")] Gtk.ClipboardRichTextReceivedFunc callback);
+		public void request_targets ([CCode (scope = "async")] Gtk.ClipboardTargetsReceivedFunc callback);
+		public void request_text ([CCode (scope = "async")] Gtk.ClipboardTextReceivedFunc callback);
+		public void request_uris ([CCode (scope = "async")] Gtk.ClipboardURIReceivedFunc callback);
 		public void set_can_store (Gtk.TargetEntry[] targets);
 		public void set_image (Gdk.Pixbuf pixbuf);
 		public void set_text (string text, int len);
-		public bool set_with_data (Gtk.TargetEntry[] targets, Gtk.ClipboardGetFunc get_func, Gtk.ClipboardClearFunc clear_func);
-		public bool set_with_owner (Gtk.TargetEntry[] targets, Gtk.ClipboardGetFunc get_func, Gtk.ClipboardClearFunc clear_func, GLib.Object owner);
+		public bool set_with_data (Gtk.TargetEntry[] targets, [CCode (scope = "async")] Gtk.ClipboardGetFunc get_func, [CCode (scope = "async")] Gtk.ClipboardClearFunc clear_func);
+		public bool set_with_owner (Gtk.TargetEntry[] targets, [CCode (scope = "async")] Gtk.ClipboardGetFunc get_func, [CCode (scope = "async")] Gtk.ClipboardClearFunc clear_func, GLib.Object owner);
 		public void store ();
 		public Gtk.SelectionData? wait_for_contents (Gdk.Atom target);
 		public Gdk.Pixbuf? wait_for_image ();
@@ -2272,7 +2272,7 @@ namespace Gtk {
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
 		public Image.from_stock (string stock_id, Gtk.IconSize size);
 		public unowned Gdk.PixbufAnimation get_animation ();
-		public void get_gicon (out unowned GLib.Icon gicon, Gtk.IconSize size);
+		public void get_gicon (out unowned GLib.Icon gicon, out Gtk.IconSize size);
 		public void get_icon_name (out unowned string icon_name, out Gtk.IconSize size);
 		public void get_icon_set (out unowned Gtk.IconSet icon_set, out Gtk.IconSize size);
 		public void get_image (out unowned Gdk.Image gdk_image, out unowned Gdk.Bitmap mask);
@@ -2315,8 +2315,6 @@ namespace Gtk {
 		[NoAccessorMethod]
 		public string stock { owned get; set; }
 		public Gtk.ImageType storage_type { get; }
-		[NoAccessorMethod]
-		public bool use_fallback { get; set; }
 	}
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	[Compact]
@@ -3895,8 +3893,6 @@ namespace Gtk {
 		[NoAccessorMethod]
 		public Gtk.CornerType gtk_scrolled_window_placement { get; set; }
 		[NoAccessorMethod]
-		public bool gtk_shell_shows_menubar { get; set; }
-		[NoAccessorMethod]
 		public bool gtk_show_input_method_menu { get; set; }
 		[NoAccessorMethod]
 		public bool gtk_show_unicode_menu { get; set; }
@@ -4073,7 +4069,7 @@ namespace Gtk {
 		public uint32 get_x11_window_id ();
 		public bool is_embedded ();
 		[CCode (instance_pos = -1)]
-		public void position_menu (Gtk.Menu menu, out int x, out int y, out bool push_in);
+		public void position_menu (Gtk.Menu menu, ref int x, ref int y, out bool push_in);
 		public void set_blinking (bool blinking);
 		public void set_from_file (string filename);
 		public void set_from_gicon (GLib.Icon icon);
@@ -5639,8 +5635,8 @@ namespace Gtk {
 		public bool is_toplevel ();
 		public GLib.List<weak GLib.Closure> list_accel_closures ();
 		public GLib.List<weak Gtk.Widget> list_mnemonic_labels ();
-		[CCode (cname = "gtk_widget_class_list_style_properties")]
-		public class unowned GLib.ParamSpec list_style_properties (uint n_properties);
+		[CCode (array_length_type = "guint", cname = "gtk_widget_class_list_style_properties")]
+		public class (unowned GLib.ParamSpec)[] list_style_properties ();
 		public void modify_base (Gtk.StateType state, Gdk.Color? color);
 		public void modify_bg (Gtk.StateType state, Gdk.Color? color);
 		public void modify_cursor (Gdk.Color? primary, Gdk.Color? secondary);
@@ -7569,7 +7565,7 @@ namespace Gtk {
 	[CCode (cheader_filename = "gtk/gtk.h", has_target = false)]
 	public delegate void MenuDetachFunc (Gtk.Widget attach_widget, Gtk.Menu menu);
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public delegate void MenuPositionFunc (Gtk.Menu menu, out int x, out int y, out bool push_in);
+	public delegate void MenuPositionFunc (Gtk.Menu menu, ref int x, ref int y, out bool push_in);
 	[CCode (cheader_filename = "gtk/gtk.h", has_target = false)]
 	public delegate void ModuleDisplayInitFunc (Gdk.Display display);
 	[CCode (cheader_filename = "gtk/gtk.h", has_target = false)]
@@ -8396,7 +8392,7 @@ namespace Gtk {
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public static bool test_widget_send_key (Gtk.Widget widget, uint keyval, Gdk.ModifierType modifiers);
 	[CCode (cheader_filename = "gtk/gtk.h")]
-	public static bool tree_get_row_drag_data (Gtk.SelectionData selection_data, out Gtk.TreeModel tree_model, out Gtk.TreePath path);
+	public static bool tree_get_row_drag_data (Gtk.SelectionData selection_data, out unowned Gtk.TreeModel tree_model, out Gtk.TreePath path);
 	[CCode (cheader_filename = "gtk/gtk.h")]
 	public static bool tree_set_row_drag_data (Gtk.SelectionData selection_data, Gtk.TreeModel tree_model, Gtk.TreePath path);
 }

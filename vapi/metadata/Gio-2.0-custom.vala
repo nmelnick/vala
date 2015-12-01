@@ -1,4 +1,7 @@
 namespace GLib {
+	[CCode (cheader_filename = "glib.h", cname = "g_realloc")]
+	public static GLib.ReallocFunc g_realloc;
+
 	[CCode (cheader_filename = "gio/gio.h")]
 	namespace Bus {
 		public async GLib.DBusConnection get (GLib.BusType bus_type, GLib.Cancellable? cancellable = null) throws GLib.IOError;
@@ -18,7 +21,7 @@ namespace GLib {
 		[CCode (cname = "activate")]
 		public GLib.SimpleActionActivateFunc activate_callback;
 		[CCode (cname = "change_state")]
-		public GLib.SimpleActionChangeStateCallback? change_state_callback;
+		public GLib.SimpleActionChangeStateFunc? change_state_callback;
 	}
 
 	[Compact]
@@ -72,6 +75,12 @@ namespace GLib {
 		public async string? read_line_utf8_async (int io_priority = GLib.Priority.DEFAULT, GLib.Cancellable? cancellable = null, out size_t length) throws GLib.IOError, GLib.IOError;
 	}
 
+	[CCode (cheader_filename = "gio/gio.h", type_id = "g_file_monitor_get_type ()")]
+	public abstract class FileMonitor : GLib.Object {
+		[Deprecated (since = "2.46")]
+		public GLib.MainContext context { construct; }
+	}
+
 	[Compact]
 	public class IOModuleScope {
 		[CCode (has_construct_function = false)]
@@ -94,7 +103,12 @@ namespace GLib {
 
 	public class MemoryOutputStream : GLib.OutputStream {
 		[CCode (has_construct_function = false, type = "GOutputStream*")]
-		public MemoryOutputStream ([CCode (array_length_type = "gsize")] owned uint8[]? data, GLib.ReallocFunc? realloc_function, GLib.DestroyNotify? destroy_function);
+		public MemoryOutputStream ([CCode (array_length_type = "gsize")] owned uint8[]? data, GLib.ReallocFunc? realloc_function = GLib.g_realloc, GLib.DestroyNotify? destroy_function = GLib.g_free);
+	}
+
+	[CCode (cheader_filename = "gio/gio.h", type_id = "g_native_socket_address_get_type ()")]
+	public class NativeSocketAddress : GLib.SocketAddress {
+		public NativeSocketAddress (void* native, size_t len);
 	}
 
 	public abstract class NativeVolumeMonitor : GLib.VolumeMonitor {
@@ -164,7 +178,7 @@ namespace GLib {
 
 	public class TlsPassword : GLib.Object {
 		[CCode (vfunc_name = "set_value")]
-		public virtual void set_value_full ([CCode (array_length_cname = "length", array_length_pos = 1.5, array_length_type = "gssize", type = "guchar*")] owned uint8[] value, GLib.DestroyNotify? notify = GLib.free);
+		public virtual void set_value_full ([CCode (array_length_cname = "length", array_length_pos = 1.5, array_length_type = "gssize", type = "guchar*")] owned uint8[] value, GLib.DestroyNotify? notify = GLib.g_free);
 	}
 
 	public class VolumeMonitor : GLib.Object {

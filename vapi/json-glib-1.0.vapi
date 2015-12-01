@@ -42,7 +42,7 @@ namespace Json {
 		public unowned Json.Builder add_int_value (int64 value);
 		public unowned Json.Builder add_null_value ();
 		public unowned Json.Builder add_string_value (string value);
-		public unowned Json.Builder add_value (Json.Node node);
+		public unowned Json.Builder add_value (owned Json.Node node);
 		public unowned Json.Builder begin_array ();
 		public unowned Json.Builder begin_object ();
 		public unowned Json.Builder end_array ();
@@ -106,7 +106,7 @@ namespace Json {
 		public void set_boolean (bool value);
 		public void set_double (double value);
 		public void set_int (int64 value);
-		public void set_object (Json.Object object);
+		public void set_object (Json.Object? object);
 		public void set_parent (Json.Node parent);
 		public void set_string (string value);
 		public void set_value (GLib.Value value);
@@ -130,7 +130,7 @@ namespace Json {
 		public unowned Json.Node get_member (string member_name);
 		public GLib.List<weak string> get_members ();
 		public bool get_null_member (string member_name);
-		public unowned Json.Object get_object_member (string member_name);
+		public unowned Json.Object? get_object_member (string member_name);
 		public uint get_size ();
 		public unowned string get_string_member (string member_name);
 		public GLib.List<weak Json.Node> get_values ();
@@ -210,11 +210,16 @@ namespace Json {
 		public Json.Node default_serialize_property (string property_name, GLib.Value value, GLib.ParamSpec pspec);
 		public abstract bool deserialize_property (string property_name, out GLib.Value value, GLib.ParamSpec pspec, Json.Node property_node);
 		public abstract unowned GLib.ParamSpec find_property (string name);
-		public abstract void get_property (GLib.ParamSpec pspec, GLib.Value value);
+		public abstract GLib.Value get_property (GLib.ParamSpec pspec);
 		[CCode (array_length_pos = 0.1, array_length_type = "guint")]
 		public GLib.ParamSpec[] list_properties ();
 		public abstract Json.Node serialize_property (string property_name, GLib.Value value, GLib.ParamSpec pspec);
 		public abstract void set_property (GLib.ParamSpec pspec, GLib.Value value);
+	}
+	[CCode (cheader_filename = "json-glib/json-glib.h", has_type_id = false)]
+	public struct ObjectIter {
+		public void init (Json.Object object);
+		public bool next (out unowned string member_name, out unowned Json.Node member_node);
 	}
 	[CCode (cheader_filename = "json-glib/json-glib.h", cprefix = "JSON_NODE_", type_id = "json_node_type_get_type ()")]
 	public enum NodeType {
@@ -285,6 +290,8 @@ namespace Json {
 	[Deprecated (replacement = "Json.gobject_from_data", since = "0.10")]
 	public static GLib.Object construct_gobject (GLib.Type gtype, string data, size_t length) throws GLib.Error;
 	[CCode (cheader_filename = "json-glib/json-glib.h")]
+	public static Json.Node from_string (string str) throws GLib.Error;
+	[CCode (cheader_filename = "json-glib/json-glib.h")]
 	public static GLib.Object gobject_deserialize (GLib.Type gtype, Json.Node node);
 	[CCode (cheader_filename = "json-glib/json-glib.h")]
 	public static GLib.Object gobject_from_data (GLib.Type gtype, string data, ssize_t length = -1) throws GLib.Error;
@@ -303,4 +310,6 @@ namespace Json {
 	[CCode (cheader_filename = "json-glib/json-glib.h,json-glib/json-gobject.h")]
 	[Deprecated (replacement = "Json.gobject_to_data", since = "0.10")]
 	public static string serialize_gobject (GLib.Object gobject, out size_t length);
+	[CCode (cheader_filename = "json-glib/json-glib.h")]
+	public static string to_string (Json.Node node, bool pretty);
 }

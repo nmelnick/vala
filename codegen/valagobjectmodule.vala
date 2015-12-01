@@ -207,7 +207,7 @@ public class Vala.GObjectModule : GTypeModule {
 			}
 
 			CCodeExpression cfunc;
-			if (!get_ccode_no_accessor_method (base_prop)) {
+			if (!get_ccode_no_accessor_method (base_prop) && !get_ccode_concrete_accessor (base_prop)) {
 				cfunc = new CCodeIdentifier (get_ccode_name (base_prop.get_accessor));
 			} else {
 				// use the static real function as helper
@@ -314,7 +314,7 @@ public class Vala.GObjectModule : GTypeModule {
 			}
 
 			CCodeExpression cfunc;
-			if (!get_ccode_no_accessor_method (base_prop)) {
+			if (!get_ccode_no_accessor_method (base_prop) && !get_ccode_concrete_accessor (base_prop)) {
 				cfunc = new CCodeIdentifier (get_ccode_name (base_prop.set_accessor));
 			} else {
 				// use the static real function as helper
@@ -333,9 +333,12 @@ public class Vala.GObjectModule : GTypeModule {
 				ccode.add_assignment (new CCodeIdentifier ("boxed"), cgetcall);
 				ccall.add_argument (new CCodeIdentifier ("boxed"));
 
+				var cisnull = new CCodeBinaryExpression (CCodeBinaryOperator.EQUALITY, new CCodeIdentifier ("boxed"), new CCodeConstant ("NULL"));
 				var cstrvlen = new CCodeFunctionCall (new CCodeIdentifier ("g_strv_length"));
 				cstrvlen.add_argument (new CCodeIdentifier ("boxed"));
-				ccall.add_argument (cstrvlen);
+				var ccond = new CCodeConditionalExpression (cisnull, new CCodeConstant ("0"), cstrvlen);
+
+				ccall.add_argument (ccond);
 				ccode.add_expression (ccall);
 				ccode.close ();
 			} else {

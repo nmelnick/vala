@@ -501,6 +501,8 @@ namespace Clutter {
 		public const int AudioLowerVolume;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_AudioMedia")]
 		public const int AudioMedia;
+		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_AudioMicMute")]
+		public const int AudioMicMute;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_AudioMute")]
 		public const int AudioMute;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_AudioNext")]
@@ -3483,6 +3485,8 @@ namespace Clutter {
 		public const int dead_abovereversedcomma;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_abovering")]
 		public const int dead_abovering;
+		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_aboveverticalline")]
+		public const int dead_aboveverticalline;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_acute")]
 		public const int dead_acute;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_belowbreve")]
@@ -3501,6 +3505,8 @@ namespace Clutter {
 		public const int dead_belowring;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_belowtilde")]
 		public const int dead_belowtilde;
+		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_belowverticalline")]
+		public const int dead_belowverticalline;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_breve")]
 		public const int dead_breve;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_capital_schwa")]
@@ -3537,6 +3543,10 @@ namespace Clutter {
 		public const int dead_invertedbreve;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_iota")]
 		public const int dead_iota;
+		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_longsolidusoverlay")]
+		public const int dead_longsolidusoverlay;
+		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_lowline")]
+		public const int dead_lowline;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_macron")]
 		public const int dead_macron;
 		[CCode (cheader_filename = "clutter/clutter.h", cname = "CLUTTER_KEY_dead_o")]
@@ -4668,6 +4678,7 @@ namespace Clutter {
 		[NoWrapper]
 		public virtual void apply_transform (ref Clutter.Matrix matrix);
 		public Clutter.Vertex apply_transform_to_point (Clutter.Vertex point);
+		public void bind_model (GLib.ListModel model, owned Clutter.ActorCreateChildFunc create_child_func);
 		public void clear_actions ();
 		public void clear_constraints ();
 		public void clear_effects ();
@@ -4801,8 +4812,11 @@ namespace Clutter {
 		public void insert_child_at_index (Clutter.Actor child, int index_);
 		public void insert_child_below (Clutter.Actor child, Clutter.Actor? sibling);
 		public bool is_in_clone_paint ();
+		public bool is_mapped ();
+		public bool is_realized ();
 		public bool is_rotated ();
 		public bool is_scaled ();
+		public bool is_visible ();
 		[Deprecated (since = "1.10")]
 		public void lower (Clutter.Actor? above);
 		[Deprecated (since = "1.10")]
@@ -5222,6 +5236,15 @@ namespace Clutter {
 		public bool get_value (GLib.Value value);
 	}
 	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class AnyEvent : Clutter.Event {
+		public Clutter.EventFlags flags;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
 	public class Backend : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Backend ();
@@ -5481,7 +5504,9 @@ namespace Clutter {
 		public void set_color (Clutter.Color? color);
 		[Deprecated (since = "1.10")]
 		public void set_layout_manager (Clutter.LayoutManager manager);
+		[Deprecated (since = "1.10")]
 		public Clutter.Color color { get; set; }
+		[Deprecated (since = "1.10")]
 		[NoAccessorMethod]
 		public bool color_set { get; set; }
 		public Clutter.LayoutManager layout_manager { get; set; }
@@ -5555,6 +5580,22 @@ namespace Clutter {
 		public Clutter.Color brightness { get; set; }
 		[NoAccessorMethod]
 		public Clutter.Color contrast { get; set; }
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class ButtonEvent : Clutter.Event {
+		public double axes;
+		public uint32 button;
+		public uint click_count;
+		public weak Clutter.InputDevice device;
+		public Clutter.EventFlags flags;
+		public Clutter.ModifierType modifier_state;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_cairo_texture_get_type ()")]
 	[Deprecated (since = "1.12")]
@@ -5660,6 +5701,19 @@ namespace Clutter {
 		[NoWrapper]
 		public virtual void update_preferred_size (Clutter.Actor actor, Clutter.Orientation direction, float for_size, float minimum_size, float natural_size);
 	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class CrossingEvent : Clutter.Event {
+		public weak Clutter.InputDevice device;
+		public Clutter.EventFlags flags;
+		public weak Clutter.Actor related;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
+	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_deform_effect_get_type ()")]
 	public abstract class DeformEffect : Clutter.OffscreenEffect {
 		[CCode (has_construct_function = false)]
@@ -5762,14 +5816,6 @@ namespace Clutter {
 	[CCode (cheader_filename = "clutter/clutter.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "clutter_event_get_type ()")]
 	[Compact]
 	public class Event {
-		public Clutter.AnyEvent any;
-		public Clutter.ButtonEvent button;
-		public Clutter.CrossingEvent crossing;
-		public Clutter.KeyEvent key;
-		public Clutter.MotionEvent motion;
-		public Clutter.ScrollEvent scroll;
-		public Clutter.StageStateEvent stage_state;
-		public Clutter.TouchEvent touch;
 		public Clutter.EventType type;
 		[CCode (has_construct_function = false)]
 		public Event (Clutter.EventType type);
@@ -5788,6 +5834,11 @@ namespace Clutter {
 		public float get_distance (Clutter.Event target);
 		public unowned Clutter.EventSequence get_event_sequence ();
 		public Clutter.EventFlags get_flags ();
+		public void get_gesture_motion_delta (out double dx, out double dy);
+		public Clutter.TouchpadGesturePhase get_gesture_phase ();
+		public double get_gesture_pinch_angle_delta ();
+		public double get_gesture_pinch_scale ();
+		public uint get_gesture_swipe_finger_count ();
 		public uint16 get_key_code ();
 		public uint get_key_symbol ();
 		public unichar get_key_unicode ();
@@ -5824,6 +5875,16 @@ namespace Clutter {
 		public void set_stage (Clutter.Stage? stage);
 		public void set_state (Clutter.ModifierType state);
 		public void set_time (uint32 time_);
+		public Clutter.AnyEvent any {[CCode (cname = "(ClutterAnyEvent *)")]  get; }
+		public Clutter.ButtonEvent button {[CCode (cname = "(ClutterButtonEvent *)")]  get; }
+		public Clutter.CrossingEvent crossing {[CCode (cname = "(ClutterCrossingEvent *)")]  get; }
+		public Clutter.KeyEvent key {[CCode (cname = "(ClutterKeyEvent *)")]  get; }
+		public Clutter.MotionEvent motion {[CCode (cname = "(ClutterMotionEvent *)")]  get; }
+		public Clutter.ScrollEvent scroll {[CCode (cname = "(ClutterScrollEvent *)")]  get; }
+		public Clutter.StageStateEvent stage_state {[CCode (cname = "(ClutterStageStateEvent *)")]  get; }
+		public Clutter.TouchEvent touch {[CCode (cname = "(ClutterTouchEvent *)")]  get; }
+		public Clutter.TouchpadPinchEvent touchpad_pinch {[CCode (cname = "(ClutterTouchpadPinchEvent *)")]  get; }
+		public Clutter.TouchpadSwipeEvent touchpad_swipe {[CCode (cname = "(ClutterTouchpadSwipeEvent *)")]  get; }
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "clutter_event_sequence_get_type ()")]
 	[Compact]
@@ -5974,7 +6035,9 @@ namespace Clutter {
 		public uint get_n_keys ();
 		public unowned Clutter.Actor get_pointer_actor ();
 		public unowned Clutter.Stage get_pointer_stage ();
+		public unowned string get_product_id ();
 		public GLib.List<weak Clutter.InputDevice> get_slave_devices ();
+		public unowned string get_vendor_id ();
 		public void grab (Clutter.Actor actor);
 		public bool keycode_to_evdev (uint hardware_keycode, uint evdev_keycode);
 		public unowned Clutter.Actor sequence_get_grabbed_actor (Clutter.EventSequence sequence);
@@ -5997,6 +6060,8 @@ namespace Clutter {
 		public uint n_axes { get; }
 		[NoAccessorMethod]
 		public string name { owned get; construct; }
+		public string product_id { get; construct; }
+		public string vendor_id { get; construct; }
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_interval_get_type ()")]
 	public class Interval : GLib.InitiallyUnowned, Clutter.Scriptable {
@@ -6026,6 +6091,20 @@ namespace Clutter {
 		[NoAccessorMethod]
 		public GLib.Value initial { owned get; set; }
 		public GLib.Type value_type { get; construct; }
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class KeyEvent : Clutter.Event {
+		public weak Clutter.InputDevice device;
+		public Clutter.EventFlags flags;
+		public uint16 hardware_keycode;
+		public uint keyval;
+		public Clutter.ModifierType modifier_state;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public unichar unicode_value;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_keyframe_transition_get_type ()")]
 	public class KeyframeTransition : Clutter.PropertyTransition, Clutter.Scriptable {
@@ -6076,6 +6155,7 @@ namespace Clutter {
 		public Clutter.LayoutManager manager { get; construct; }
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_list_model_get_type ()")]
+	[Deprecated (since = "1.24")]
 	public class ListModel : Clutter.Model, Clutter.Scriptable {
 		[CCode (has_construct_function = false, type = "ClutterModel*")]
 		public ListModel (uint n_columns, ...);
@@ -6095,6 +6175,7 @@ namespace Clutter {
 		public void free ();
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_model_get_type ()")]
+	[Deprecated (since = "1.24")]
 	public abstract class Model : GLib.Object, Clutter.Scriptable {
 		[CCode (has_construct_function = false)]
 		protected Model ();
@@ -6136,6 +6217,7 @@ namespace Clutter {
 		public virtual signal void sort_changed ();
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_model_iter_get_type ()")]
+	[Deprecated (since = "1.24")]
 	public abstract class ModelIter : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected ModelIter ();
@@ -6154,6 +6236,20 @@ namespace Clutter {
 		public Clutter.Model model { owned get; set; }
 		[NoAccessorMethod]
 		public uint row { get; set; }
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class MotionEvent : Clutter.Event {
+		public double axes;
+		public weak Clutter.InputDevice device;
+		public Clutter.EventFlags flags;
+		public Clutter.ModifierType modifier_state;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_offscreen_effect_get_type ()")]
 	public abstract class OffscreenEffect : Clutter.Effect {
@@ -6214,6 +6310,7 @@ namespace Clutter {
 		[CCode (has_construct_function = false, type = "ClutterAction*")]
 		public PanAction ();
 		public double get_acceleration_factor ();
+		public float get_constrained_motion_delta (uint point, out float delta_x, out float delta_y);
 		public double get_deceleration ();
 		public bool get_interpolate ();
 		public void get_interpolated_coords (out float interpolated_x, out float interpolated_y);
@@ -6336,14 +6433,22 @@ namespace Clutter {
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_rectangle_get_type ()")]
 	public class Rectangle : Clutter.Actor, Atk.Implementor, Clutter.Animatable, Clutter.Container, Clutter.Scriptable {
 		[CCode (has_construct_function = false, type = "ClutterActor*")]
+		[Deprecated (since = "1.10")]
 		public Rectangle ();
+		[Deprecated (since = "1.10")]
 		public Clutter.Color get_border_color ();
+		[Deprecated (since = "1.10")]
 		public uint get_border_width ();
+		[Deprecated (since = "1.10")]
 		public Clutter.Color get_color ();
+		[Deprecated (since = "1.10")]
 		public void set_border_color (Clutter.Color color);
+		[Deprecated (since = "1.10")]
 		public void set_border_width (uint width);
+		[Deprecated (since = "1.10")]
 		public void set_color (Clutter.Color color);
 		[CCode (has_construct_function = false, type = "ClutterActor*")]
+		[Deprecated (since = "1.10")]
 		public Rectangle.with_color (Clutter.Color color);
 		public Clutter.Color border_color { get; set; }
 		public uint border_width { get; set; }
@@ -6439,6 +6544,21 @@ namespace Clutter {
 		public void scroll_to_rect (Clutter.Rect rect);
 		public void set_scroll_mode (Clutter.ScrollMode mode);
 		public Clutter.ScrollMode scroll_mode { get; set; }
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class ScrollEvent : Clutter.Event {
+		public double axes;
+		public weak Clutter.InputDevice device;
+		public Clutter.ScrollDirection direction;
+		public Clutter.EventFlags flags;
+		public Clutter.ModifierType modifier_state;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_settings_get_type ()")]
 	public class Settings : GLib.Object {
@@ -6655,6 +6775,17 @@ namespace Clutter {
 		public Clutter.Stage default_stage { get; }
 		public virtual signal void stage_added (Clutter.Stage stage);
 		public virtual signal void stage_removed (Clutter.Stage stage);
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class StageStateEvent : Clutter.Event {
+		public Clutter.StageState changed_mask;
+		public Clutter.EventFlags flags;
+		public Clutter.StageState new_state;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_state_get_type ()")]
 	public class State : GLib.Object, Clutter.Scriptable {
@@ -7090,6 +7221,52 @@ namespace Clutter {
 		public uint add (uint fps, owned GLib.SourceFunc func);
 		public void remove (uint id_);
 	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class TouchEvent : Clutter.Event {
+		public double axes;
+		public weak Clutter.InputDevice device;
+		public Clutter.EventFlags flags;
+		public Clutter.ModifierType modifier_state;
+		public weak Clutter.EventSequence sequence;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class TouchpadPinchEvent : Clutter.Event {
+		public float angle_delta;
+		public float dx;
+		public float dy;
+		public Clutter.EventFlags flags;
+		public Clutter.TouchpadGesturePhase phase;
+		public float scale;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
+	}
+	[CCode (cheader_filename = "clutter/clutter.h")]
+	[Compact]
+	public class TouchpadSwipeEvent : Clutter.Event {
+		public float dx;
+		public float dy;
+		public Clutter.EventFlags flags;
+		public uint n_fingers;
+		public Clutter.TouchpadGesturePhase phase;
+		public weak Clutter.Actor source;
+		public weak Clutter.Stage stage;
+		public uint32 time;
+		public Clutter.EventType type;
+		public float x;
+		public float y;
+	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_transition_get_type ()")]
 	public abstract class Transition : Clutter.Timeline, Clutter.Scriptable {
 		[CCode (has_construct_function = false)]
@@ -7341,29 +7518,6 @@ namespace Clutter {
 		public bool prev (out unowned Clutter.Actor child);
 		public void remove ();
 	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct AnyEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct ButtonEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public float x;
-		public float y;
-		public Clutter.ModifierType modifier_state;
-		public uint32 button;
-		public uint click_count;
-		public double axes;
-		public weak Clutter.InputDevice device;
-	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "CLUTTER_TYPE_COLOR")]
 	public struct Color {
 		public uint8 red;
@@ -7395,18 +7549,6 @@ namespace Clutter {
 		public uint32 to_pixel ();
 		public string to_string ();
 	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct CrossingEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public float x;
-		public float y;
-		public weak Clutter.InputDevice device;
-		public weak Clutter.Actor related;
-	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_fog_get_type ()")]
 	[Deprecated (since = "1.10")]
 	public struct Fog {
@@ -7422,19 +7564,6 @@ namespace Clutter {
 		public uint height;
 		public bool intersects (Clutter.Geometry geometry1);
 		public Clutter.Geometry union (Clutter.Geometry geometry_b);
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct KeyEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public Clutter.ModifierType modifier_state;
-		public uint keyval;
-		public uint16 hardware_keycode;
-		public unichar unicode_value;
-		public weak Clutter.InputDevice device;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_knot_get_type ()")]
 	public struct Knot {
@@ -7453,19 +7582,6 @@ namespace Clutter {
 		public static unowned Clutter.Matrix? init_from_matrix (Clutter.Matrix a, Clutter.Matrix b);
 		public static unowned Clutter.Matrix? init_identity (Clutter.Matrix matrix);
 	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct MotionEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public float x;
-		public float y;
-		public Clutter.ModifierType modifier_state;
-		public double axes;
-		public weak Clutter.InputDevice device;
-	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "clutter_path_node_get_type ()")]
 	public struct PathNode {
 		public Clutter.PathNodeType type;
@@ -7481,44 +7597,6 @@ namespace Clutter {
 		public float aspect;
 		public float z_near;
 		public float z_far;
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct ScrollEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public float x;
-		public float y;
-		public Clutter.ScrollDirection direction;
-		public Clutter.ModifierType modifier_state;
-		public double axes;
-		public weak Clutter.InputDevice device;
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct StageStateEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public Clutter.StageState changed_mask;
-		public Clutter.StageState new_state;
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", has_type_id = false)]
-	public struct TouchEvent {
-		public Clutter.EventType type;
-		public uint32 time;
-		public Clutter.EventFlags flags;
-		public weak Clutter.Stage stage;
-		public weak Clutter.Actor source;
-		public float x;
-		public float y;
-		public weak Clutter.EventSequence sequence;
-		public Clutter.ModifierType modifier_state;
-		public double axes;
-		public weak Clutter.InputDevice device;
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", type_id = "CLUTTER_TYPE_UNITS")]
 	public struct Units {
@@ -7714,6 +7792,8 @@ namespace Clutter {
 		TOUCH_UPDATE,
 		TOUCH_END,
 		TOUCH_CANCEL,
+		TOUCHPAD_PINCH,
+		TOUCHPAD_SWIPE,
 		EVENT_LAST
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_FEATURE_")]
@@ -7741,6 +7821,7 @@ namespace Clutter {
 		VERTICAL
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_FONT_", type_id = "clutter_font_flags_get_type ()")]
+	[Deprecated (since = "1.22")]
 	[Flags]
 	public enum FontFlags {
 		MIPMAPPING,
@@ -7753,6 +7834,7 @@ namespace Clutter {
 		BEFORE
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_GRAVITY_", type_id = "clutter_gravity_get_type ()")]
+	[Deprecated (since = "1.22")]
 	public enum Gravity {
 		NONE,
 		NORTH,
@@ -7814,6 +7896,7 @@ namespace Clutter {
 		FLOATING
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_INTERPOLATION_", type_id = "clutter_interpolation_get_type ()")]
+	[Deprecated (since = "1.22")]
 	public enum Interpolation {
 		LINEAR,
 		CUBIC
@@ -7875,7 +7958,8 @@ namespace Clutter {
 	public enum PanAxis {
 		AXIS_NONE,
 		X_AXIS,
-		Y_AXIS
+		Y_AXIS,
+		AXIS_AUTO
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_PATH_", type_id = "clutter_path_node_type_get_type ()")]
 	public enum PathNodeType {
@@ -7913,6 +7997,7 @@ namespace Clutter {
 		Z_AXIS
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_ROTATE_", type_id = "clutter_rotate_direction_get_type ()")]
+	[Deprecated (since = "1.22")]
 	public enum RotateDirection {
 		CW,
 		CCW
@@ -8020,6 +8105,7 @@ namespace Clutter {
 		RIGHT
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_TABLE_ALIGNMENT_", type_id = "clutter_table_alignment_get_type ()")]
+	[Deprecated (since = "1.22")]
 	public enum TableAlignment {
 		START,
 		CENTER,
@@ -8032,6 +8118,7 @@ namespace Clutter {
 		RTL
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_TEXTURE_", type_id = "clutter_texture_flags_get_type ()")]
+	[Deprecated (since = "1.22")]
 	[Flags]
 	public enum TextureFlags {
 		NONE,
@@ -8040,6 +8127,7 @@ namespace Clutter {
 		YUV_FLAG_YUV2
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_TEXTURE_QUALITY_", type_id = "clutter_texture_quality_get_type ()")]
+	[Deprecated (since = "1.22")]
 	public enum TextureQuality {
 		LOW,
 		MEDIUM,
@@ -8050,6 +8138,13 @@ namespace Clutter {
 		FORWARD,
 		BACKWARD
 	}
+	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_TOUCHPAD_GESTURE_PHASE_", type_id = "clutter_touchpad_gesture_phase_get_type ()")]
+	public enum TouchpadGesturePhase {
+		BEGIN,
+		UPDATE,
+		END,
+		CANCEL
+	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_UNIT_", type_id = "clutter_unit_type_get_type ()")]
 	public enum UnitType {
 		PIXEL,
@@ -8057,21 +8152,6 @@ namespace Clutter {
 		MM,
 		POINT,
 		CM
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_X11_FILTER_", type_id = "clutter_x11_filter_return_get_type ()")]
-	public enum X11FilterReturn {
-		CONTINUE,
-		TRANSLATE,
-		REMOVE
-	}
-	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_X11_XINPUT_", type_id = "clutter_x11_xinput_event_types_get_type ()")]
-	public enum X11XInputEventTypes {
-		KEY_PRESS_EVENT,
-		KEY_RELEASE_EVENT,
-		BUTTON_PRESS_EVENT,
-		BUTTON_RELEASE_EVENT,
-		MOTION_NOTIFY_EVENT,
-		LAST_EVENT
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", cprefix = "CLUTTER_ZOOM_", type_id = "clutter_zoom_axis_get_type ()")]
 	public enum ZoomAxis {
@@ -8107,6 +8187,8 @@ namespace Clutter {
 		public static GLib.Quark quark ();
 	}
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 1.9)]
+	public delegate Clutter.Actor ActorCreateChildFunc (GLib.Object item);
+	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 1.9)]
 	[Deprecated (since = "1.12")]
 	public delegate double AlphaFunc (Clutter.Alpha alpha);
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 2.9)]
@@ -8119,10 +8201,13 @@ namespace Clutter {
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 1.9)]
 	public delegate bool EventFilterFunc (Clutter.Event event);
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 2.9)]
+	[Deprecated (since = "1.24")]
 	public delegate bool ModelFilterFunc (Clutter.Model model, Clutter.ModelIter iter);
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 2.9)]
+	[Deprecated (since = "1.24")]
 	public delegate bool ModelForeachFunc (Clutter.Model model, Clutter.ModelIter iter);
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 3.9)]
+	[Deprecated (since = "1.24")]
 	public delegate int ModelSortFunc (Clutter.Model model, GLib.Value a, GLib.Value b);
 	[CCode (cheader_filename = "clutter/clutter.h", instance_pos = 1.9)]
 	public delegate void PathCallback (Clutter.PathNode node);

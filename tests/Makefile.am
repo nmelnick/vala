@@ -28,6 +28,7 @@ TESTS = \
 	basic-types/bug596637.vala \
 	basic-types/bug596785.vala \
 	basic-types/bug632322.vala \
+	basic-types/bug643612.vala \
 	basic-types/bug644046.vala \
 	basic-types/bug647222.vala \
 	basic-types/bug648364.vala \
@@ -68,6 +69,7 @@ TESTS = \
 	methods/bug726347.vala \
 	methods/bug736235.vala \
 	methods/bug737222.vala \
+	methods/bug743877.vala \
 	methods/generics.vala \
 	control-flow/break.vala \
 	control-flow/expressions-conditional.vala \
@@ -112,6 +114,7 @@ TESTS = \
 	structs/bug685177.vala \
 	structs/bug686190.vala \
 	structs/bug690380.vala \
+	structs/bug749952.vala \
 	delegates/delegates.vala \
 	delegates/bug539166.vala \
 	delegates/bug595610.vala \
@@ -162,6 +165,7 @@ TESTS = \
 	objects/bug701978.vala \
 	objects/bug702736.vala \
 	objects/bug702846.vala \
+	objects/bug751338.vala \
 	errors/errors.vala \
 	errors/bug567181.vala \
 	errors/bug579101.vala \
@@ -191,6 +195,7 @@ TESTS = \
 	asynchronous/bug654336.vala \
 	asynchronous/bug654337.vala \
 	asynchronous/bug661961.vala \
+	asynchronous/bug742621.vala \
 	asynchronous/closures.vala \
 	asynchronous/yield.vala \
 	dbus/basic-types.test \
