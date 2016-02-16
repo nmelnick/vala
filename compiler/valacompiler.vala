@@ -73,6 +73,7 @@ class Vala.Compiler {
 	static bool experimental;
 	static bool experimental_non_null;
 	static bool gobject_tracing;
+	static bool disable_since_check;
 	static bool disable_warnings;
 	static string cc_command;
 	[CCode (array_length = false, array_null_terminated = true)]
@@ -138,6 +139,7 @@ class Vala.Compiler {
 		{ "enable-experimental", 0, 0, OptionArg.NONE, ref experimental, "Enable experimental features", null },
 		{ "disable-warnings", 0, 0, OptionArg.NONE, ref disable_warnings, "Disable warnings", null },
 		{ "fatal-warnings", 0, 0, OptionArg.NONE, ref fatal_warnings, "Treat warnings as fatal", null },
+		{ "disable-since-check", 0, 0, OptionArg.NONE, ref disable_since_check, "Do not check whether used symbols exist in local packages", null },
 		{ "enable-experimental-non-null", 0, 0, OptionArg.NONE, ref experimental_non_null, "Enable experimental enhancements for non-null types", null },
 		{ "enable-gobject-tracing", 0, 0, OptionArg.NONE, ref gobject_tracing, "Enable GObject creation tracing", null },
 		{ "cc", 0, 0, OptionArg.STRING, ref cc_command, "Use COMMAND as C compiler command", "COMMAND" },
@@ -201,6 +203,7 @@ class Vala.Compiler {
 		context.assert = !disable_assert;
 		context.checking = enable_checking;
 		context.deprecated = deprecated;
+		context.since_check = !disable_since_check;
 		context.hide_internal = hide_internal;
 		context.experimental = experimental;
 		context.experimental_non_null = experimental_non_null;
@@ -274,7 +277,7 @@ class Vala.Compiler {
 		}
 
 		int glib_major = 2;
-		int glib_minor = 24;
+		int glib_minor = 32;
 		if (target_glib != null && target_glib.scanf ("%d.%d", out glib_major, out glib_minor) != 2) {
 			Report.error (null, "Invalid format for --target-glib");
 		}
@@ -470,8 +473,6 @@ class Vala.Compiler {
 		if (dependencies != null) {
 			context.write_dependencies (dependencies);
 		}
-
-		context.used_attr.check_unused (context);
 
 		if (context.report.get_errors () > 0 || (fatal_warnings && context.report.get_warnings () > 0)) {
 			return quit ();

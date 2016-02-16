@@ -52,6 +52,7 @@ public class Vala.GirParser : CodeVisitor {
 		DEPRECATED,
 		REPLACEMENT,
 		DEPRECATED_SINCE,
+		SINCE,
 		ARRAY,
 		ARRAY_LENGTH_IDX,
 		ARRAY_NULL_TERMINATED,
@@ -1161,7 +1162,14 @@ public class Vala.GirParser : CodeVisitor {
 
 				// experimental
 				if (metadata.has_argument (ArgumentType.EXPERIMENTAL)) {
-					symbol.set_attribute ("Experimental", metadata.get_bool (ArgumentType.EXPERIMENTAL));
+					symbol.set_attribute_bool ("Version", "experimental", metadata.get_bool (ArgumentType.EXPERIMENTAL));
+				}
+
+				// since
+				if (metadata.has_argument (ArgumentType.SINCE)) {
+					symbol.version.since = metadata.get_string (ArgumentType.SINCE);
+				} else if (symbol is Namespace == false && girdata["version"] != null) {
+					symbol.version.since = girdata.get ("version");
 				}
 
 				if (parent.symbol is Namespace) {
@@ -1201,13 +1209,13 @@ public class Vala.GirParser : CodeVisitor {
 						}
 					}
 					if (node.deprecated) {
-						node.symbol.set_attribute ("Deprecated", true);
+						node.symbol.version.deprecated = true;
 					}
 					if (node.deprecated_since != null) {
-						node.symbol.set_attribute_string ("Deprecated", "since", node.deprecated_since);
+						node.symbol.version.deprecated_since = node.deprecated_since;
 					}
 					if (node.deprecated_replacement != null) {
-						node.symbol.set_attribute_string ("Deprecated", "replacement", node.deprecated_replacement);
+						node.symbol.version.replacement = node.deprecated_replacement;
 					}
 
 					if (node.new_symbol && !node.merged && !metadata.get_bool (ArgumentType.HIDDEN)) {
@@ -1850,6 +1858,7 @@ public class Vala.GirParser : CodeVisitor {
 				parse_include ();
 			} else if (reader.name == "package") {
 				var pkg = parse_package ();
+				this.current_source_file.package_name = pkg;
 				if (context.has_package (pkg)) {
 					// package already provided elsewhere, stop parsing this GIR
 					return;
@@ -2575,12 +2584,16 @@ public class Vala.GirParser : CodeVisitor {
 			} else if (type_name == "glong") {
 				if (ctype != null && ctype.has_prefix ("gssize")) {
 					type_name = "ssize_t";
+				} else if (ctype != null && ctype.has_prefix ("gintptr")) {
+					type_name = "intptr";
 				} else {
 					type_name = "long";
 				}
 			} else if (type_name == "gulong") {
 				if (ctype != null && ctype.has_prefix ("gsize")) {
 					type_name = "size_t";
+				} else if (ctype != null && ctype.has_prefix ("guintptr")) {
+					type_name = "uintptr";
 				} else {
 					type_name = "ulong";
 				}
@@ -2612,6 +2625,10 @@ public class Vala.GirParser : CodeVisitor {
 				type_name = "size_t";
 			} else if (type_name == "gssize") {
 				type_name = "ssize_t";
+			} else if (type_name == "guintptr") {
+				type_name = "uintptr";
+			} else if (type_name == "gintptr") {
+				type_name = "intptr";
 			} else if (type_name == "GType") {
 				type_name = "GLib.Type";
 			} else if (type_name == "GLib.String") {
@@ -3717,8 +3734,13 @@ public class Vala.GirParser : CodeVisitor {
 					var d = ((DelegateType) resolved_type).delegate_symbol;
 					if (!(d.name == "DestroyNotify" && d.parent_symbol.name == "GLib")) {
 						info.param.set_attribute_string ("CCode", "scope", "async");
-						info.param.variable_type.value_owned = true;
+						info.param.variable_type.value_owned = (info.closure_idx != -1 && info.destroy_idx != -1);
 					}
+				}
+			} else {
+				var resolved_type = info.param.variable_type;
+				if (resolved_type is DelegateType) {
+					info.param.variable_type.value_owned = (info.closure_idx != -1 && info.destroy_idx != -1);
 				}
 			}
 		}

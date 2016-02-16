@@ -1110,6 +1110,17 @@
 				<parameter name="height" type="gdouble"/>
 			</parameters>
 		</function>
+		<function name="render_background_get_clip" symbol="gtk_render_background_get_clip">
+			<return-type type="void"/>
+			<parameters>
+				<parameter name="context" type="GtkStyleContext*"/>
+				<parameter name="x" type="gdouble"/>
+				<parameter name="y" type="gdouble"/>
+				<parameter name="width" type="gdouble"/>
+				<parameter name="height" type="gdouble"/>
+				<parameter name="out_clip" type="GdkRectangle*"/>
+			</parameters>
+		</function>
 		<function name="render_check" symbol="gtk_render_check">
 			<return-type type="void"/>
 			<parameters>
@@ -2332,8 +2343,6 @@
 		<struct name="GtkSettingsValue">
 			<field name="origin" type="gchar*"/>
 			<field name="value" type="GValue"/>
-		</struct>
-		<struct name="GtkShortcutsGestureClass">
 		</struct>
 		<struct name="GtkShortcutsGroupClass">
 		</struct>
@@ -4112,6 +4121,13 @@
 					<parameter name="iter" type="GtkTextIter*"/>
 				</parameters>
 			</method>
+			<method name="starts_tag" symbol="gtk_text_iter_starts_tag">
+				<return-type type="gboolean"/>
+				<parameters>
+					<parameter name="iter" type="GtkTextIter*"/>
+					<parameter name="tag" type="GtkTextTag*"/>
+				</parameters>
+			</method>
 			<method name="starts_word" symbol="gtk_text_iter_starts_word">
 				<return-type type="gboolean"/>
 				<parameters>
@@ -4412,14 +4428,6 @@
 					<parameter name="path" type="GtkWidgetPath*"/>
 					<parameter name="pos" type="gint"/>
 					<parameter name="name" type="gchar*"/>
-				</parameters>
-			</method>
-			<method name="iter_add_qclass" symbol="gtk_widget_path_iter_add_qclass">
-				<return-type type="void"/>
-				<parameters>
-					<parameter name="path" type="GtkWidgetPath*"/>
-					<parameter name="pos" type="gint"/>
-					<parameter name="qname" type="GQuark"/>
 				</parameters>
 			</method>
 			<method name="iter_add_region" symbol="gtk_widget_path_iter_add_region">
@@ -4974,6 +4982,10 @@
 			<member name="GTK_POLICY_NEVER" value="2"/>
 			<member name="GTK_POLICY_EXTERNAL" value="3"/>
 		</enum>
+		<enum name="GtkPopoverConstraint" type-name="GtkPopoverConstraint" get-type="gtk_popover_constraint_get_type">
+			<member name="GTK_POPOVER_CONSTRAINT_NONE" value="0"/>
+			<member name="GTK_POPOVER_CONSTRAINT_WINDOW" value="1"/>
+		</enum>
 		<enum name="GtkPositionType" type-name="GtkPositionType" get-type="gtk_position_type_get_type">
 			<member name="GTK_POS_LEFT" value="0"/>
 			<member name="GTK_POS_RIGHT" value="1"/>
@@ -5377,6 +5389,7 @@
 			<member name="GTK_DEBUG_INTERACTIVE" value="131072"/>
 			<member name="GTK_DEBUG_TOUCHSCREEN" value="262144"/>
 			<member name="GTK_DEBUG_ACTIONS" value="524288"/>
+			<member name="GTK_DEBUG_RESIZE" value="1048576"/>
 		</flags>
 		<flags name="GtkDestDefaults" type-name="GtkDestDefaults" get-type="gtk_dest_defaults_get_type">
 			<member name="GTK_DEST_DEFAULT_MOTION" value="1"/>
@@ -5470,6 +5483,12 @@
 			<member name="GTK_STATE_FLAG_LINK" value="512"/>
 			<member name="GTK_STATE_FLAG_VISITED" value="1024"/>
 			<member name="GTK_STATE_FLAG_CHECKED" value="2048"/>
+			<member name="GTK_STATE_FLAG_DROP_ACTIVE" value="4096"/>
+		</flags>
+		<flags name="GtkStyleContextPrintFlags" type-name="GtkStyleContextPrintFlags" get-type="gtk_style_context_print_flags_get_type">
+			<member name="GTK_STYLE_CONTEXT_PRINT_NONE" value="0"/>
+			<member name="GTK_STYLE_CONTEXT_PRINT_RECURSE" value="1"/>
+			<member name="GTK_STYLE_CONTEXT_PRINT_SHOW_STYLE" value="2"/>
 		</flags>
 		<flags name="GtkTargetFlags" type-name="GtkTargetFlags" get-type="gtk_target_flags_get_type">
 			<member name="GTK_TARGET_SAME_APP" value="1"/>
@@ -10294,6 +10313,7 @@
 			<property name="alpha" type="guint" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="color" type="GdkColor*" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="rgba" type="GdkRGBA*" readable="1" writable="1" construct="0" construct-only="0"/>
+			<property name="show-editor" type="gboolean" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="title" type="char*" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="use-alpha" type="gboolean" readable="1" writable="1" construct="0" construct-only="0"/>
 			<signal name="color-set" when="FIRST">
@@ -20037,6 +20057,12 @@
 					<parameter name="action_namespace" type="gchar*"/>
 				</parameters>
 			</method>
+			<method name="get_constrain_to" symbol="gtk_popover_get_constrain_to">
+				<return-type type="GtkPopoverConstraint"/>
+				<parameters>
+					<parameter name="popover" type="GtkPopover*"/>
+				</parameters>
+			</method>
 			<method name="get_default_widget" symbol="gtk_popover_get_default_widget">
 				<return-type type="GtkWidget*"/>
 				<parameters>
@@ -20087,6 +20113,13 @@
 					<parameter name="model" type="GMenuModel*"/>
 				</parameters>
 			</constructor>
+			<method name="set_constrain_to" symbol="gtk_popover_set_constrain_to">
+				<return-type type="void"/>
+				<parameters>
+					<parameter name="popover" type="GtkPopover*"/>
+					<parameter name="constraint" type="GtkPopoverConstraint"/>
+				</parameters>
+			</method>
 			<method name="set_default_widget" symbol="gtk_popover_set_default_widget">
 				<return-type type="void"/>
 				<parameters>
@@ -20129,9 +20162,10 @@
 					<parameter name="transitions_enabled" type="gboolean"/>
 				</parameters>
 			</method>
+			<property name="constrain-to" type="GtkPopoverConstraint" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="modal" type="gboolean" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="pointing-to" type="GdkRectangle*" readable="1" writable="1" construct="0" construct-only="0"/>
-			<property name="position" type="GtkPositionType" readable="1" writable="1" construct="1" construct-only="0"/>
+			<property name="position" type="GtkPositionType" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="relative-to" type="GtkWidget*" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="transitions-enabled" type="gboolean" readable="1" writable="1" construct="0" construct-only="0"/>
 			<signal name="closed" when="LAST">
@@ -22839,18 +22873,6 @@
 			<property name="gtk-xft-hintstyle" type="char*" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="gtk-xft-rgba" type="char*" readable="1" writable="1" construct="0" construct-only="0"/>
 		</object>
-		<object name="GtkShortcutsGesture" parent="GtkBox" type-name="GtkShortcutsGesture" get-type="gtk_shortcuts_gesture_get_type">
-			<implements>
-				<interface name="AtkImplementor"/>
-				<interface name="GtkBuildable"/>
-				<interface name="GtkOrientable"/>
-			</implements>
-			<property name="icon" type="GIcon*" readable="1" writable="1" construct="0" construct-only="0"/>
-			<property name="icon-size-group" type="GtkSizeGroup*" readable="0" writable="1" construct="0" construct-only="0"/>
-			<property name="subtitle" type="char*" readable="1" writable="1" construct="0" construct-only="0"/>
-			<property name="title" type="char*" readable="1" writable="1" construct="0" construct-only="0"/>
-			<property name="title-size-group" type="GtkSizeGroup*" readable="0" writable="1" construct="0" construct-only="0"/>
-		</object>
 		<object name="GtkShortcutsGroup" parent="GtkBox" type-name="GtkShortcutsGroup" get-type="gtk_shortcuts_group_get_type">
 			<implements>
 				<interface name="AtkImplementor"/>
@@ -24716,6 +24738,13 @@
 					<parameter name="progress" type="gdouble*"/>
 				</parameters>
 			</method>
+			<method name="to_string" symbol="gtk_style_context_to_string">
+				<return-type type="char*"/>
+				<parameters>
+					<parameter name="context" type="GtkStyleContext*"/>
+					<parameter name="flags" type="GtkStyleContextPrintFlags"/>
+				</parameters>
+			</method>
 			<property name="direction" type="GtkTextDirection" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="paint-clock" type="GdkFrameClock*" readable="1" writable="1" construct="0" construct-only="0"/>
 			<property name="parent" type="GtkStyleContext*" readable="1" writable="1" construct="0" construct-only="0"/>
@@ -26124,7 +26153,7 @@
 				</parameters>
 			</method>
 			<method name="get_iter_at_location" symbol="gtk_text_view_get_iter_at_location">
-				<return-type type="void"/>
+				<return-type type="gboolean"/>
 				<parameters>
 					<parameter name="text_view" type="GtkTextView*"/>
 					<parameter name="iter" type="GtkTextIter*"/>
@@ -26133,7 +26162,7 @@
 				</parameters>
 			</method>
 			<method name="get_iter_at_position" symbol="gtk_text_view_get_iter_at_position">
-				<return-type type="void"/>
+				<return-type type="gboolean"/>
 				<parameters>
 					<parameter name="text_view" type="GtkTextView*"/>
 					<parameter name="iter" type="GtkTextIter*"/>
@@ -26303,6 +26332,12 @@
 			</constructor>
 			<method name="place_cursor_onscreen" symbol="gtk_text_view_place_cursor_onscreen">
 				<return-type type="gboolean"/>
+				<parameters>
+					<parameter name="text_view" type="GtkTextView*"/>
+				</parameters>
+			</method>
+			<method name="reset_cursor_blink" symbol="gtk_text_view_reset_cursor_blink">
+				<return-type type="void"/>
 				<parameters>
 					<parameter name="text_view" type="GtkTextView*"/>
 				</parameters>
@@ -36102,14 +36137,15 @@
 				</parameters>
 			</vfunc>
 		</interface>
-		<constant name="GTK_BINARY_AGE" type="int" value="1903"/>
+		<constant name="GTK_BINARY_AGE" type="int" value="1908"/>
 		<constant name="GTK_INPUT_ERROR" type="int" value="-1"/>
 		<constant name="GTK_INTERFACE_AGE" type="int" value="0"/>
+		<constant name="GTK_LEVEL_BAR_OFFSET_FULL" type="char*" value="full"/>
 		<constant name="GTK_LEVEL_BAR_OFFSET_HIGH" type="char*" value="high"/>
 		<constant name="GTK_LEVEL_BAR_OFFSET_LOW" type="char*" value="low"/>
 		<constant name="GTK_MAJOR_VERSION" type="int" value="3"/>
 		<constant name="GTK_MAX_COMPOSE_LEN" type="int" value="7"/>
-		<constant name="GTK_MICRO_VERSION" type="int" value="3"/>
+		<constant name="GTK_MICRO_VERSION" type="int" value="8"/>
 		<constant name="GTK_MINOR_VERSION" type="int" value="19"/>
 		<constant name="GTK_PAPER_NAME_A3" type="char*" value="iso_a3"/>
 		<constant name="GTK_PAPER_NAME_A4" type="char*" value="iso_a4"/>

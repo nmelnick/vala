@@ -171,7 +171,7 @@ public abstract class Vala.CCodeMethodModule : CCodeStructModule {
 			function.modifiers |= CCodeModifiers.INTERNAL;
 		}
 
-		if (m.deprecated) {
+		if (m.version.deprecated) {
 			function.modifiers |= CCodeModifiers.DEPRECATED;
 		}
 
@@ -724,7 +724,8 @@ public abstract class Vala.CCodeMethodModule : CCodeStructModule {
 			m.body.emit (this);
 		}
 
-		if (profile) {
+		// we generate the same code if we see a return statement, this handles the case without returns
+		if (profile && m.return_type is VoidType) {
 			string prefix = "_vala_prof_%s".printf (real_name);
 
 			var level = new CCodeIdentifier (prefix + "_level");

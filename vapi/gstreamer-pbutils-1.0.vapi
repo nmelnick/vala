@@ -76,13 +76,15 @@ namespace Gst {
 			[CCode (has_construct_function = false)]
 			protected DiscovererInfo ();
 			public Gst.PbUtils.DiscovererInfo copy ();
+			[Version (since = "1.6")]
 			public static Gst.PbUtils.DiscovererInfo from_variant (GLib.Variant variant);
 			public GLib.List<Gst.PbUtils.DiscovererStreamInfo> get_audio_streams ();
 			public GLib.List<Gst.PbUtils.DiscovererStreamInfo> get_container_streams ();
 			public Gst.ClockTime get_duration ();
-			[Deprecated]
+			[Version (deprecated = true)]
 			public unowned Gst.Structure get_misc ();
 			[CCode (array_length = false, array_null_terminated = true)]
+			[Version (since = "1.4")]
 			public unowned string[] get_missing_elements_installer_details ();
 			public Gst.PbUtils.DiscovererResult get_result ();
 			public bool get_seekable ();
@@ -94,6 +96,7 @@ namespace Gst {
 			public unowned Gst.Toc get_toc ();
 			public unowned string get_uri ();
 			public GLib.List<Gst.PbUtils.DiscovererStreamInfo> get_video_streams ();
+			[Version (since = "1.6")]
 			public GLib.Variant to_variant (Gst.PbUtils.DiscovererSerializeFlags flags);
 		}
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h", cname = "GstDiscovererStreamInfo", lower_case_cprefix = "gst_discoverer_stream_info_", type_id = "gst_discoverer_stream_info_get_type ()")]
@@ -102,7 +105,7 @@ namespace Gst {
 			[CCode (has_construct_function = false)]
 			protected DiscovererStreamInfo ();
 			public Gst.Caps get_caps ();
-			[Deprecated]
+			[Version (deprecated = true)]
 			public unowned Gst.Structure get_misc ();
 			public Gst.PbUtils.DiscovererStreamInfo get_next ();
 			public Gst.PbUtils.DiscovererStreamInfo get_previous ();
@@ -216,8 +219,11 @@ namespace Gst {
 			[CCode (has_construct_function = false)]
 			public InstallPluginsContext ();
 			public void free ();
+			[Version (since = "1.6")]
 			public void set_confirm_search (bool confirm_search);
+			[Version (since = "1.6")]
 			public void set_desktop_id (string desktop_id);
+			[Version (since = "1.6")]
 			public void set_startup_notification_id (string startup_id);
 			public void set_xid (uint xid);
 		}
@@ -234,6 +240,7 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h", cname = "GstDiscovererSerializeFlags", cprefix = "GST_DISCOVERER_SERIALIZE_", type_id = "gst_discoverer_serialize_flags_get_type ()")]
 		[Flags]
 		[GIR (name = "DiscovererSerializeFlags")]
+		[Version (since = "1.6")]
 		public enum DiscovererSerializeFlags {
 			BASIC,
 			CAPS,
@@ -305,7 +312,7 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h")]
 		public static void init ();
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h", cname = "gst_install_plugins_async")]
-		public static Gst.PbUtils.InstallPluginsReturn install_plugins_async ([CCode (array_length = false, array_null_terminated = true)] string[] details, Gst.PbUtils.InstallPluginsContext? ctx, [CCode (scope = "async")] owned Gst.PbUtils.InstallPluginsResultFunc func);
+		public static Gst.PbUtils.InstallPluginsReturn install_plugins_async ([CCode (array_length = false, array_null_terminated = true)] string[] details, Gst.PbUtils.InstallPluginsContext? ctx, [CCode (scope = "async")] Gst.PbUtils.InstallPluginsResultFunc func);
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h", cname = "gst_install_plugins_installation_in_progress")]
 		public static bool install_plugins_installation_in_progress ();
 		[CCode (cheader_filename = "gst/pbutils/pbutils.h", cname = "gst_install_plugins_return_get_name")]
