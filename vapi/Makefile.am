@@ -90,6 +90,8 @@ dist_vapi_DATA = \
 	goocanvas.vapi \
 	graphene-1.0.deps \
 	graphene-1.0.vapi \
+	gsk-3.0.deps \
+	gsk-3.0.vapi \
 	gsl.vapi \
 	gstreamer-0.10.deps \
 	gstreamer-0.10.vapi \
@@ -416,6 +418,7 @@ GIR_BINDINGS = \
 	gio-2.0 \
 	gobject-introspection-1.0 \
 	graphene-1.0 \
+	gsk-3.0 \
 	gudev-1.0 \
 	json-glib-1.0 \
 	libgdata \
@@ -557,6 +560,9 @@ goocanvas:
 
 graphene-1.0:
 	$(GENVAPI) --library $(srcdir)/graphene-1.0 --pkg gobject-2.0 --metadatadir $(METADATADIR) $(GIRDIR)/Graphene-1.0.gir
+
+gsk-3.0:
+	$(GENVAPI) --library $(srcdir)/gsk-3.0 --pkg gio-2.0 --metadatadir $(METADATADIR) $(GIRDIR)/Gsk-3.0.gir
 
 gstreamer-0.10:
 	$(GENVAPI) --library $(srcdir)/gstreamer-0.10 $(PACKAGESDIR)/gstreamer-0.10/gstreamer-0.10-custom.vala $(PACKAGESDIR)/gstreamer-0.10/gstreamer-0.10.gi
